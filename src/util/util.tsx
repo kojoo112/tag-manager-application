@@ -1,14 +1,34 @@
+import { get, ref, set } from "firebase/database";
 import { firebaseDB } from "../firebase/firebase";
-import { onValue, ref, set } from "firebase/database";
 
-export const getData = (
+export const getData = async (
   reference: string,
-  callback: (snapshot: any) => void
+  isReturnKeys: boolean = true
 ) => {
-  const refer = ref(firebaseDB, reference);
-  onValue(refer, (snapshot: any) => callback(snapshot));
+  try {
+    return await get(ref(firebaseDB, reference)).then((snapshot) => {
+      if (snapshot.exists()) {
+        if (isReturnKeys) {
+          return snapshot.val();
+        } else {
+          return Object.keys(snapshot.val()).sort();
+        }
+      } else {
+        console.error("database를 확인해주세요.");
+      }
+    });
+  } catch (e) {
+    console.error("util.tsx >>> getData >>> ", e);
+  }
 };
 
-export const storeNewComponents = (reference: string, components: object) => {
-  set(ref(firebaseDB, `/hintImage${reference}`), components);
+export const storeNewComponents = async (
+  reference: string,
+  components: object[]
+) => {
+  try {
+    await set(ref(firebaseDB, reference), components);
+  } catch (e) {
+    console.error("util.tsx >>> storeNewComponents >>> ", e);
+  }
 };
