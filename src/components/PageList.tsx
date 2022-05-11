@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
   DragDropContext,
-  Droppable,
   Draggable,
   DraggingStyle,
+  Droppable,
   NotDraggingStyle,
 } from "react-beautiful-dnd";
 
@@ -55,8 +55,9 @@ const PageList = (props: any) => {
     }
 
     setPlaceholderProps({});
-    setPageList((items: []) =>
-      reorder(items, result.source.index, result.destination.index)
+
+    setPageList((pageList: []) =>
+      reorder(pageList, result.source.index, result.destination.index)
     );
   };
 
@@ -94,7 +95,6 @@ const PageList = (props: any) => {
     //   });
     // };
   };
-  console.log(props);
 
   // Normally you would want to split things out into separate components.
   // But in this example everything is just done in one place for simplicity
@@ -110,15 +110,14 @@ const PageList = (props: any) => {
             {pageList.map(
               (
                 item: {
-                  index: number;
                   component: string;
                   url: string;
                 },
                 index: number
               ) => (
                 <Draggable
-                  key={`item${item.index}`}
-                  draggableId={`item-${item.index}`}
+                  key={`item${index}`}
+                  draggableId={`item-${index}`}
                   index={index}
                 >
                   {(provided, snapshot) => (
@@ -133,7 +132,7 @@ const PageList = (props: any) => {
                     >
                       <label>index: {index}</label>
                       <br />
-                      <label>item.index: {item.index}</label>
+
                       <br />
                       <>component: {item.component}</>
                       <div>
@@ -147,7 +146,7 @@ const PageList = (props: any) => {
               )
             )}
 
-            {provided.placeholder}
+            {provided.placeholder /** 필수요소 */}
             {/* <CustomPlaceholder snapshot={snapshot} /> */}
             <div
               style={{
