@@ -19,40 +19,31 @@ const SearchContainer = (props: {
   const { state, merchantChanged, themeChanged, pageChanged } = props;
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <Card className="bg-dark text-white w-75">
-        <Card.Header>
-          <Card.Title>X-KIT Tag Manager</Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <FormSelect
-              items={state.merchantList}
-              label="가맹점"
-              value={state.merchantValue}
-              action={merchantChanged}
-            />
-            <FormSelect
-              items={state.themeList}
-              label="테마"
-              value={state.themeValue}
-              action={themeChanged}
-            />
-            <FormSelect
-              items={state.pageList}
-              label="X-KIT"
-              value={state.pageValue}
-              action={pageChanged}
-            />
-          </div>
-        </Card.Body>
-      </Card>
+    <div>
+      <div>
+        <FormSelect
+          items={state.merchantList}
+          label="가맹점"
+          value={state.merchantValue}
+          action={merchantChanged}
+        />
+      </div>
+      <div>
+        <FormSelect
+          items={state.themeList}
+          label="테마"
+          value={state.themeValue}
+          action={themeChanged}
+        />
+      </div>
+      <div>
+        <FormSelect
+          items={state.pageList}
+          label="X-KIT"
+          value={state.pageValue}
+          action={pageChanged}
+        />
+      </div>
     </div>
   );
 };

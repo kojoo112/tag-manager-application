@@ -9,12 +9,8 @@ const FormSelect = (props: {
   const { items, label, value, action } = props;
 
   return (
-    <div className="w-100" style={{ marginLeft: "5px", marginRight: "5px" }}>
-      <InputGroup
-        style={{
-          alignItems: "center",
-        }}
-      >
+    <div className="w-100" style={{ margin: 5 }}>
+      <InputGroup>
         <Form.Label className="w-25" column={true} style={styles.label}>
           {label}
         </Form.Label>
@@ -41,18 +37,6 @@ const FormSelect = (props: {
                   );
                 }
               )}
-          {/* {props.items &&
-            Object.entries(props.items).map(
-              (element: any, index: number): any => {
-                return (
-                  <option
-                    label={element[1]}
-                    value={element[0]}
-                    key={index}
-                  ></option>
-                );
-              }
-            )} */}
         </Form.Select>
       </InputGroup>
     </div>
@@ -69,6 +53,7 @@ const styles = {
     borderRadius: 3,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
+    fontWeight: 700,
   },
   select: {
     backgroundColor: "#6c757e",
@@ -77,5 +62,6 @@ const styles = {
     borderRadius: 3,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
+    fontWeight: 700,
   },
 };
