@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, SetStateAction, Dispatch } from "react";
+import tape from "../assets/images/tape-play.gif";
 import {
   DragDropContext,
   Draggable,
@@ -6,9 +7,45 @@ import {
   Droppable,
   NotDraggingStyle,
 } from "react-beautiful-dnd";
+import { Trash3 } from "react-bootstrap-icons";
+
+interface IPageObjectType {
+  component: string;
+  url?: string;
+  answer?: string;
+}
+
+const showContent = (item: IPageObjectType) => {
+  const value = item.component;
+
+  if (value === "ImageView") {
+    return <img src={item.url} alt="" height={400} />;
+  } else if (value === "AudioView") {
+    return (
+      <div>
+        <img src={tape} alt="" height={200} />
+        <audio style={{ width: "100%" }} controls={true} src={item.url} />
+      </div>
+    );
+  } else if (value === "VideoView") {
+    return (
+      <video
+        controls={true}
+        // autoPlay={true}
+        width={400}
+        src={item.url}
+      ></video>
+    );
+  }
+  return;
+};
 
 // a little function to help us with reordering the result
-const reorder = (list: [], startIndex: number, endIndex: number) => {
+const reorder = (
+  list: IPageObjectType[],
+  startIndex: number,
+  endIndex: number
+) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -22,15 +59,11 @@ const getItemStyle = (
   isDragging: boolean,
   draggableStyle: DraggingStyle | NotDraggingStyle | undefined
 ): object => ({
-  // some basic styles to make the items look a bit nicer
+  overflowY: "scroll",
   userSelect: "none",
   padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
   background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
   ...draggableStyle,
 });
 
@@ -39,26 +72,41 @@ const getListStyle = (isDraggingOver: boolean): object => ({
   padding: grid,
   width: 500,
   position: "relative",
+  height: "fit-content",
 });
 
 const queryAttr = "data-rbd-drag-handle-draggable-id";
 
-const PageList = (props: any) => {
+const PageList = (props: {
+  pageList: IPageObjectType[];
+  setPageList: Dispatch<SetStateAction<IPageObjectType[]>>;
+}) => {
   const [placeholderProps, setPlaceholderProps] = useState({});
   const { pageList, setPageList } = props;
-  // const [items, setItems] = useState(getItems(10));
+  const [isHover, setIsHover] = useState<boolean>(false);
 
   const onDragEnd = (result: any) => {
-    // dropped outside the list
     if (!result.destination) {
       return;
     }
 
     setPlaceholderProps({});
 
-    setPageList((pageList: []) =>
+    setPageList((pageList: IPageObjectType[]) =>
       reorder(pageList, result.source.index, result.destination.index)
     );
+  };
+
+  const removeComponent = (item: number) => {
+    const pageListArray = [...pageList];
+    const removedPageList = pageListArray.filter((el, index) => {
+      return index !== item;
+    });
+    if (removedPageList.length > 0) {
+      setPageList(removedPageList);
+    } else {
+      alert("1개 이상은 존재해야 합니다.");
+    }
   };
 
   const onDragUpdate = (update: any) => {
@@ -107,14 +155,8 @@ const PageList = (props: any) => {
             ref={provided.innerRef}
             style={getListStyle(snapshot.isDraggingOver)}
           >
-            {pageList.map(
-              (
-                item: {
-                  component: string;
-                  url: string;
-                },
-                index: number
-              ) => (
+            {pageList &&
+              pageList.map((item: IPageObjectType, index: number) => (
                 <Draggable
                   key={`item${index}`}
                   draggableId={`item-${index}`}
@@ -130,21 +172,28 @@ const PageList = (props: any) => {
                         provided.draggableProps.style
                       )}
                     >
-                      <label>index: {index}</label>
-                      <br />
-
-                      <br />
-                      <>component: {item.component}</>
+                      <div style={{ display: "flex", justifyContent: "end" }}>
+                        <Trash3
+                          size={30}
+                          id={`trash-${index}`}
+                          color={isHover ? "red" : "white"}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            removeComponent(index);
+                          }}
+                        />
+                      </div>
+                      <>종류 : {item.component}</>
                       <div>
-                        <img src={item.url} alt="" height="200" />
+                        <>{showContent(item)}</>
                         <br />
-                        <>url: {item.url}</>
+                        {/* <>{item.url ? item.url : item.answer}</>
+                          <>url: {item.url}</> */}
                       </div>
                     </div>
                   )}
                 </Draggable>
-              )
-            )}
+              ))}
 
             {provided.placeholder /** 필수요소 */}
             {/* <CustomPlaceholder snapshot={snapshot} /> */}

@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useRef, useState } from "react";
-import { Button, Form, InputGroup } from "react-bootstrap";
+import { ChangeEvent, useEffect, useReducer, useRef, useState } from "react";
+import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
 import { getData, storeNewComponents } from "../util/util";
@@ -9,6 +9,7 @@ import {
   THEME_CHANGED,
   PAGE_CHANGED,
 } from "../util/constants";
+import InputForm from "../components/InputForm";
 
 const initialState = {
   merchantList: [""],
@@ -18,12 +19,6 @@ const initialState = {
   themeValue: "thm001",
   pageValue: "page01",
 };
-
-interface IPageObjectType {
-  component: string;
-  url: string;
-  answer?: string;
-}
 
 interface IState {
   merchantList: string[];
@@ -42,7 +37,6 @@ interface IAction {
 const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
     case INIT_DATA:
-      // console.log({ ...action.payload });
       return { ...action.payload };
     case MERCHANT_CHANGED:
       console.log(action.payload);
@@ -58,12 +52,21 @@ const reducer = (state: IState, action: IAction): IState => {
 
 interface IPageObjectType {
   component: string;
-  url: string;
+  url?: string;
   answer?: string;
 }
 
 const Home = () => {
   const [pageList, setPageList] = useState<IPageObjectType[]>([]);
+  const [viewName, setViewName] = useState<object>({});
+  const [isPasswordView, setIsPasswordView] = useState<boolean>(false);
+  const [originalPageList, setOriginalPageList] = useState<IPageObjectType[]>(
+    []
+  );
+  const [isModified, setIsModified] = useState<boolean>(false);
+
+  const componentRef = useRef<HTMLSelectElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -90,6 +93,10 @@ const Home = () => {
     return await getData(
       `/tagView/${merchantCode}/${themeCode}/${pageCode}/components`
     );
+  };
+
+  const getViewList = async () => {
+    return await getData("/viewName");
   };
 
   const merchantChanged = async (merchantCode: string): Promise<any> => {
@@ -148,101 +155,185 @@ const Home = () => {
         themeValue: "thm001",
         pageValue: "page01",
       };
+      setOriginalPageList(tagList);
       setPageList(tagList);
       dispatch({ type: INIT_DATA, payload: data });
+      getViewList().then((res) => setViewName(res));
     };
     initList();
   }, []);
 
-  const component = useRef<HTMLSelectElement>(null);
-  const url = useRef<HTMLInputElement>(null);
-  const keys = useRef<number>();
+  useEffect(() => {
+    if (JSON.stringify(pageList) !== JSON.stringify(originalPageList)) {
+      setIsModified(true);
+    } else {
+      setIsModified(false);
+    }
+  }, [pageList]);
 
   const initializeInput = () => {
-    if (url.current) {
-      url.current.value = "";
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
   };
 
+  const initializePageList = () => {
+    setPageList(originalPageList);
+  };
+
+  const isInputEmpty = (): boolean => {
+    if (inputRef.current) {
+      const value = inputRef.current.value.replace(/(\s*)/gi, "");
+      if (value === "") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const addPageList = () => {
-    if (component.current && url.current) {
-      const pageObject: IPageObjectType = {
-        component: component.current.value,
-        url: url.current.value,
-      };
+    if (componentRef.current && inputRef.current && !isInputEmpty()) {
+      let pageObject: IPageObjectType;
+      const inputValue = inputRef.current.value.replace(/(\s*)/, "");
+      if (isPasswordView) {
+        pageObject = {
+          component: componentRef.current.value,
+          answer: inputValue,
+        };
+      } else {
+        pageObject = {
+          component: componentRef.current.value,
+          url: inputValue,
+        };
+      }
       const pageListArray: IPageObjectType[] = [...pageList];
       pageListArray.push(pageObject);
       setPageList(pageListArray);
       initializeInput();
+    } else {
+      alert("필수항목을 입력해주세요.");
     }
   };
 
-  const addComponent = () => {
-    if (pageList.length > 0) {
+  const saveComponent = () => {
+    const isSave = window.confirm("저장 하시겠습니까?");
+    if (isSave) {
       const ref = `/tagView/${state.merchantValue}/${state.themeValue}/${state.pageValue}/components`;
       storeNewComponents(ref, pageList).then(() => {
+        setIsModified(false);
         alert("성공적으로 저장했습니다.");
       });
     } else {
-      alert("추가할 컴포넌트가 없습니다.");
+      return;
+    }
+  };
+
+  const checkCompoent = (e: ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    inputRef.current!.value = "";
+    if (value === "PasswordTagView") {
+      setIsPasswordView(true);
+    } else {
+      setIsPasswordView(false);
     }
   };
 
   return (
-    <div className="box" style={{ textAlign: "center" }}>
-      <SearchContainer
-        state={state}
-        merchantChanged={merchantChanged}
-        themeChanged={themeChanged}
-        pageChanged={pageChanged}
-      />
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <InputGroup
-          className="w-25"
-          style={{
-            alignItems: "center",
-            margin: "10px",
-          }}
-        >
-          <Form.Label className="w-25" column={true} style={styles.label}>
-            종류
-          </Form.Label>
-          <Form.Select className="w-25" ref={component} style={styles.select}>
-            <option value="ImageView" label="이미지"></option>
-            <option value="AudioView" label="오디오"></option>
-            <option value="VideoView" label="비디오"></option>
-          </Form.Select>
-        </InputGroup>
-        <InputGroup
-          className="w-25"
-          style={{
-            alignItems: "center",
-            margin: 10,
-          }}
-        >
-          <Form.Label className="w-25" column={true} style={styles.label}>
-            URL
-          </Form.Label>
-          <Form.Control
-            ref={url}
-            type="text"
-            style={styles.select}
-          ></Form.Control>
-        </InputGroup>
+    <div className="box">
+      <div style={{ ...styles.card, float: "left" }} className="w-25">
+        <Card className="bg-dark text-white w-100 text-center h-100">
+          <Card.Header>
+            <Card.Title>X-KIT Manager</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <SearchContainer
+              state={state}
+              merchantChanged={merchantChanged}
+              themeChanged={themeChanged}
+              pageChanged={pageChanged}
+            />
+            <div className="w-100" style={styles.inputGroup}>
+              <InputGroup
+                style={{
+                  alignItems: "center",
+                }}
+              >
+                <Form.Label className="w-25" column={true} style={styles.label}>
+                  종류
+                </Form.Label>
+                <Form.Select
+                  onChange={(e) => checkCompoent(e)}
+                  className="w-50"
+                  style={styles.select}
+                  ref={componentRef}
+                >
+                  {viewName &&
+                    Object.entries(viewName).map(
+                      (element: any, index: number): any => {
+                        return (
+                          <option
+                            label={element[1]}
+                            value={element[0]}
+                            key={index}
+                          ></option>
+                        );
+                      }
+                    )}
+                </Form.Select>
+              </InputGroup>
+            </div>
+            <div>
+              <InputGroup style={styles.inputGroup}>
+                <Form.Label className="w-25" column={true} style={styles.label}>
+                  {isPasswordView ? "Answer" : "URL"}
+                </Form.Label>
+                <Form.Control
+                  className="w-50"
+                  ref={inputRef}
+                  type="text"
+                  style={styles.select}
+                ></Form.Control>
+              </InputGroup>
+            </div>
+            <div>
+              <Button
+                onClick={addPageList}
+                variant="light"
+                style={styles.button}
+              >
+                +
+              </Button>
+              <Button
+                onClick={saveComponent}
+                style={styles.button}
+                disabled={isModified ? false : true}
+              >
+                저장
+              </Button>
+              <Button
+                variant="danger"
+                style={styles.button}
+                onClick={initializePageList}
+                disabled={isModified ? false : true}
+              >
+                초기화
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
       </div>
-      <div>
-        <Button
-          onClick={addPageList}
-          variant="light"
-          style={{ marginRight: 10 }}
-        >
-          +
-        </Button>
-        <Button onClick={addComponent}>저장</Button>
-
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <PageList key={keys} pageList={pageList} setPageList={setPageList} />
-        </div>
+      <div
+        style={{
+          textAlign: "center",
+          display: "flex",
+          justifyContent: "center",
+          overflowY: "scroll",
+          height: "100vh",
+        }}
+      >
+        <PageList pageList={pageList} setPageList={setPageList} />
       </div>
     </div>
   );
@@ -258,6 +349,7 @@ const styles = {
     borderRadius: 3,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
+    fontWeight: 700,
   },
   select: {
     backgroundColor: "#6c757e",
@@ -266,5 +358,17 @@ const styles = {
     borderRadius: 3,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
+    fontWeight: 700,
+  },
+  card: {
+    display: "fixed",
+    height: "100vh",
+    minHeight: 500,
+  },
+  inputGroup: {
+    margin: 5,
+  },
+  button: {
+    margin: 5,
   },
 };
