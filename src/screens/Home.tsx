@@ -9,7 +9,6 @@ import {
   THEME_CHANGED,
   PAGE_CHANGED,
 } from "../util/constants";
-import InputForm from "../components/InputForm";
 
 const initialState = {
   merchantList: [""],
@@ -39,7 +38,6 @@ const reducer = (state: IState, action: IAction): IState => {
     case INIT_DATA:
       return { ...action.payload };
     case MERCHANT_CHANGED:
-      console.log(action.payload);
       return { ...action.payload };
     case THEME_CHANGED:
       return { ...action.payload };
@@ -54,6 +52,7 @@ interface IPageObjectType {
   component: string;
   url?: string;
   answer?: string;
+  moveToPage?: string;
 }
 
 const Home = () => {
@@ -64,9 +63,11 @@ const Home = () => {
     []
   );
   const [isModified, setIsModified] = useState<boolean>(false);
+  const [disableButton, setDisableButton] = useState<boolean>(false);
 
   const componentRef = useRef<HTMLSelectElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const moveToPageRef = useRef<HTMLSelectElement>(null);
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -111,6 +112,7 @@ const Home = () => {
       themeValue: "thm001",
       pageValue: "page01",
     };
+    setOriginalPageList(tagList);
     setPageList(tagList);
     dispatch({ type: MERCHANT_CHANGED, payload: data });
   };
@@ -126,6 +128,7 @@ const Home = () => {
       themeValue: themeCode,
       pageValue: "page01",
     };
+    setOriginalPageList(tagList);
     setPageList(tagList);
     dispatch({ type: THEME_CHANGED, payload: data });
   };
@@ -137,6 +140,7 @@ const Home = () => {
       state.themeValue,
       pageCode
     );
+    setOriginalPageList(tagList);
     setPageList(tagList);
     dispatch({ type: PAGE_CHANGED, payload: page });
   };
@@ -194,15 +198,20 @@ const Home = () => {
   };
 
   const addPageList = () => {
-    if (componentRef.current && inputRef.current && !isInputEmpty()) {
-      let pageObject: IPageObjectType;
-      const inputValue = inputRef.current.value.replace(/(\s*)/, "");
-      if (isPasswordView) {
+    if (!isInputEmpty()) {
+      let pageObject: IPageObjectType = {
+        component: "",
+      };
+      if (componentRef.current && inputRef.current && moveToPageRef.current) {
+        const inputValue = inputRef.current.value.replace(/(\s*)/, "");
+        const moveToPageUrl = `${state.merchantValue}/${state.themeValue}/`;
         pageObject = {
           component: componentRef.current.value,
           answer: inputValue,
+          moveToPage: moveToPageUrl + moveToPageRef.current.value,
         };
-      } else {
+      } else if (componentRef.current && inputRef.current) {
+        const inputValue = inputRef.current.value.replace(/(\s*)/, "");
         pageObject = {
           component: componentRef.current.value,
           url: inputValue,
@@ -242,7 +251,7 @@ const Home = () => {
 
   return (
     <div className="box">
-      <div style={{ ...styles.card, float: "left" }} className="w-25">
+      <div style={{ ...styles.card, float: "left", width: "35%" }}>
         <Card className="bg-dark text-white w-100 text-center h-100">
           <Card.Header>
             <Card.Title>X-KIT Manager</Card.Title>
@@ -297,6 +306,38 @@ const Home = () => {
                 ></Form.Control>
               </InputGroup>
             </div>
+            {isPasswordView ? (
+              <div>
+                <InputGroup style={styles.inputGroup}>
+                  <Form.Label
+                    className="w-25"
+                    column={true}
+                    style={styles.label}
+                  >
+                    이동할 페이지
+                  </Form.Label>
+                  <Form.Select
+                    className="w-50"
+                    style={styles.select}
+                    ref={moveToPageRef}
+                    disabled={isPasswordView ? false : true}
+                  >
+                    {state.pageList.map((value, index) => {
+                      return (
+                        <option
+                          label={value}
+                          value={value}
+                          key={index}
+                        ></option>
+                      );
+                    })}
+                  </Form.Select>
+                </InputGroup>
+              </div>
+            ) : (
+              <></>
+            )}
+
             <div>
               <Button
                 onClick={addPageList}
