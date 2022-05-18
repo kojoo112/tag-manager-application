@@ -3,6 +3,7 @@ import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
 import { getData, storeNewComponents } from "../util/util";
+import StorageItemList from "../components/StorageItemList";
 import {
   INIT_DATA,
   MERCHANT_CHANGED,
@@ -337,7 +338,6 @@ const Home = () => {
             ) : (
               <></>
             )}
-
             <div>
               <Button
                 onClick={addPageList}
@@ -362,6 +362,7 @@ const Home = () => {
                 초기화
               </Button>
             </div>
+            <StorageItemList />
           </Card.Body>
         </Card>
       </div>
