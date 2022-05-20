@@ -3,6 +3,7 @@ import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
 import { getData, storeNewComponents } from "../util/util";
+import StorageItemList from "../components/StorageItemList";
 import {
   INIT_DATA,
   MERCHANT_CHANGED,
@@ -59,11 +60,11 @@ const Home = () => {
   const [pageList, setPageList] = useState<IPageObjectType[]>([]);
   const [viewName, setViewName] = useState<object>({});
   const [isPasswordView, setIsPasswordView] = useState<boolean>(false);
+  const [isCameraView, setIsCameraView] = useState<boolean>(false);
   const [originalPageList, setOriginalPageList] = useState<IPageObjectType[]>(
     []
   );
   const [isModified, setIsModified] = useState<boolean>(false);
-  const [disableButton, setDisableButton] = useState<boolean>(false);
 
   const componentRef = useRef<HTMLSelectElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -198,7 +199,7 @@ const Home = () => {
   };
 
   const addPageList = () => {
-    if (!isInputEmpty()) {
+    if (!isInputEmpty() || isCameraView) {
       let pageObject: IPageObjectType = {
         component: "",
       };
@@ -241,16 +242,29 @@ const Home = () => {
 
   const checkCompoent = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    inputRef.current!.value = "";
     if (value === "PasswordTagView") {
       setIsPasswordView(true);
+      setIsCameraView(false);
+    } else if (value === "CameraView") {
+      setIsCameraView(true);
+      setIsPasswordView(false);
     } else {
+      setIsCameraView(false);
       setIsPasswordView(false);
     }
   };
 
   return (
     <div className="box">
+      <button
+        onClick={() => {
+          console.log(state.merchantValue);
+          console.log(state.themeValue);
+          console.log(state);
+        }}
+      >
+        확인하기
+      </button>
       <div style={{ ...styles.card, float: "left", width: "35%" }}>
         <Card className="bg-dark text-white w-100 text-center h-100">
           <Card.Header>
@@ -293,19 +307,27 @@ const Home = () => {
                 </Form.Select>
               </InputGroup>
             </div>
-            <div>
-              <InputGroup style={styles.inputGroup}>
-                <Form.Label className="w-25" column={true} style={styles.label}>
-                  {isPasswordView ? "Answer" : "URL"}
-                </Form.Label>
-                <Form.Control
-                  className="w-50"
-                  ref={inputRef}
-                  type="text"
-                  style={styles.select}
-                ></Form.Control>
-              </InputGroup>
-            </div>
+            {isCameraView ? (
+              <></>
+            ) : (
+              <div>
+                <InputGroup style={styles.inputGroup}>
+                  <Form.Label
+                    className="w-25"
+                    column={true}
+                    style={styles.label}
+                  >
+                    {isPasswordView ? "Answer" : "URL"}
+                  </Form.Label>
+                  <Form.Control
+                    className="w-50"
+                    ref={inputRef}
+                    type="text"
+                    style={styles.select}
+                  ></Form.Control>
+                </InputGroup>
+              </div>
+            )}
             {isPasswordView ? (
               <div>
                 <InputGroup style={styles.inputGroup}>
@@ -337,7 +359,6 @@ const Home = () => {
             ) : (
               <></>
             )}
-
             <div>
               <Button
                 onClick={addPageList}
@@ -362,6 +383,7 @@ const Home = () => {
                 초기화
               </Button>
             </div>
+            <StorageItemList />
           </Card.Body>
         </Card>
       </div>
