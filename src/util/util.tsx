@@ -1,5 +1,6 @@
 import { get, ref, set } from "firebase/database";
-import { firebaseDB } from "../firebase/firebase";
+import * as Storage from "firebase/storage";
+import { firebaseDB, firebaseStorage } from "../firebase/firebase";
 
 export const getData = async (
   reference: string,
@@ -31,4 +32,16 @@ export const storeNewComponents = async (
   } catch (e) {
     console.error("util.tsx >>> storeNewComponents >>> ", e);
   }
+};
+
+export const imageRef = () => {
+  return Storage.ref(firebaseStorage, "image.jpeg");
+};
+
+export const imagesRef = Storage.ref(firebaseStorage, "images");
+
+export const getItemList = async () => {
+  return await Storage.listAll(imagesRef).then((res) => {
+    return res;
+  });
 };
