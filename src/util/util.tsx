@@ -40,8 +40,10 @@ export const imageRef = () => {
 
 export const imagesRef = Storage.ref(firebaseStorage, "images");
 
-export const getItemList = async () => {
-  return await Storage.listAll(imagesRef).then((res) => {
-    return res;
-  });
+export const getItemList = async (reference: string) => {
+  return await Storage.list(Storage.ref(firebaseStorage, reference)).then(
+    (res) => {
+      return res;
+    }
+  );
 };

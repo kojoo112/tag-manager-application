@@ -8,18 +8,13 @@ import {
   NotDraggingStyle,
 } from "react-beautiful-dnd";
 import { Trash3 } from "react-bootstrap-icons";
-
-interface IPageObjectType {
-  component: string;
-  url?: string;
-  answer?: string;
-}
+import { IPageObjectType } from "../util/interface";
 
 const showContent = (item: IPageObjectType) => {
   const value = item.component;
 
   if (value === "ImageView") {
-    return <img src={item.url} alt="" height={400} />;
+    return <img src={item.url} alt="" width={400} />;
   } else if (value === "AudioView") {
     return (
       <div>
@@ -28,14 +23,7 @@ const showContent = (item: IPageObjectType) => {
       </div>
     );
   } else if (value === "VideoView") {
-    return (
-      <video
-        controls={true}
-        // autoPlay={true}
-        width={400}
-        src={item.url}
-      ></video>
-    );
+    return <video controls={true} width={400} src={item.url}></video>;
   }
   return;
 };
@@ -187,8 +175,6 @@ const PageList = (props: {
                       <div>
                         <>{showContent(item)}</>
                         <br />
-                        {/* <>{item.url ? item.url : item.answer}</>
-                          <>url: {item.url}</> */}
                       </div>
                     </div>
                   )}
