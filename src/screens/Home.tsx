@@ -313,54 +313,52 @@ const Home = () => {
                   </Form.Select>
                 </InputGroup>
               </div>
-              {isCameraView ? (
-                <></>
-              ) : (
-                <div>
-                  <InputGroup style={styles.inputGroup}>
-                    <Form.Label
-                      className="w-25"
-                      column={true}
-                      style={styles.label}
-                    >
-                      Answer
-                    </Form.Label>
-                    <Form.Control
-                      className="w-50"
-                      ref={inputRef}
-                      type="text"
-                      style={styles.select}
-                    ></Form.Control>
-                  </InputGroup>
-                </div>
-              )}
               {isPasswordView ? (
                 <div>
-                  <InputGroup style={styles.inputGroup}>
-                    <Form.Label
-                      className="w-25"
-                      column={true}
-                      style={styles.label}
-                    >
-                      이동할 페이지
-                    </Form.Label>
-                    <Form.Select
-                      className="w-50"
-                      style={styles.select}
-                      ref={moveToPageRef}
-                      disabled={isPasswordView ? false : true}
-                    >
-                      {state.pageList.map((value, index) => {
-                        return (
-                          <option
-                            label={value}
-                            value={value}
-                            key={index}
-                          ></option>
-                        );
-                      })}
-                    </Form.Select>
-                  </InputGroup>
+                  <div>
+                    <InputGroup style={styles.inputGroup}>
+                      <Form.Label
+                        className="w-25"
+                        column={true}
+                        style={styles.label}
+                      >
+                        Answer
+                      </Form.Label>
+                      <Form.Control
+                        className="w-50"
+                        ref={inputRef}
+                        type="text"
+                        style={styles.select}
+                      ></Form.Control>
+                    </InputGroup>
+                  </div>
+                  <div>
+                    <InputGroup style={styles.inputGroup}>
+                      <Form.Label
+                        className="w-25"
+                        column={true}
+                        style={styles.label}
+                      >
+                        이동할 페이지
+                      </Form.Label>
+                      <Form.Select
+                        className="w-50"
+                        style={styles.select}
+                        ref={moveToPageRef}
+                        disabled={isPasswordView ? false : true}
+                      >
+                        {state.pageList.map((value, index) => {
+                          return (
+                            <option
+                              label={value}
+                              value={value}
+                              key={index}
+                            ></option>
+                          );
+                        })}
+                      </Form.Select>
+                    </InputGroup>
+                  </div>
                 </div>
               ) : (
                 <></>
