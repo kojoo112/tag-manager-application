@@ -10,6 +10,7 @@ import {
   THEME_CHANGED,
   PAGE_CHANGED,
 } from "../util/constants";
+import { IState, IAction, IPageObjectType } from "../util/interface";
 
 const initialState = {
   merchantList: [""],
@@ -19,20 +20,6 @@ const initialState = {
   themeValue: "thm001",
   pageValue: "page01",
 };
-
-interface IState {
-  merchantList: string[];
-  themeList: string[];
-  pageList: string[];
-  merchantValue: string;
-  themeValue: string;
-  pageValue: string;
-}
-
-interface IAction {
-  type: string;
-  payload: any;
-}
 
 const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
@@ -49,13 +36,6 @@ const reducer = (state: IState, action: IAction): IState => {
   }
 };
 
-interface IPageObjectType {
-  component: string;
-  url?: string;
-  answer?: string;
-  moveToPage?: string;
-}
-
 const Home = () => {
   const [pageList, setPageList] = useState<IPageObjectType[]>([]);
   const [viewName, setViewName] = useState<object>({});
@@ -65,6 +45,8 @@ const Home = () => {
     []
   );
   const [isModified, setIsModified] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<IPageObjectType[]>([]);
+  const [componentValue, setComponentValue] = useState<string>("");
 
   const componentRef = useRef<HTMLSelectElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -114,6 +96,7 @@ const Home = () => {
       pageValue: "page01",
     };
     setOriginalPageList(tagList);
+    initializeItemList();
     setPageList(tagList);
     dispatch({ type: MERCHANT_CHANGED, payload: data });
   };
@@ -130,6 +113,7 @@ const Home = () => {
       pageValue: "page01",
     };
     setOriginalPageList(tagList);
+    initializeItemList();
     setPageList(tagList);
     dispatch({ type: THEME_CHANGED, payload: data });
   };
@@ -163,7 +147,10 @@ const Home = () => {
       setOriginalPageList(tagList);
       setPageList(tagList);
       dispatch({ type: INIT_DATA, payload: data });
-      getViewList().then((res) => setViewName(res));
+      getViewList().then((res) => {
+        setComponentValue(Object.keys(res)[0]);
+        setViewName(res);
+      });
     };
     initList();
   }, []);
@@ -199,31 +186,35 @@ const Home = () => {
   };
 
   const addPageList = () => {
-    if (!isInputEmpty() || isCameraView) {
-      let pageObject: IPageObjectType = {
-        component: "",
-      };
-      if (componentRef.current && inputRef.current && moveToPageRef.current) {
-        const inputValue = inputRef.current.value.replace(/(\s*)/, "");
-        const moveToPageUrl = `${state.merchantValue}/${state.themeValue}/`;
-        pageObject = {
-          component: componentRef.current.value,
-          answer: inputValue,
-          moveToPage: moveToPageUrl + moveToPageRef.current.value,
-        };
-      } else if (componentRef.current && inputRef.current) {
-        const inputValue = inputRef.current.value.replace(/(\s*)/, "");
-        pageObject = {
-          component: componentRef.current.value,
-          url: inputValue,
-        };
+    if (isPasswordView) {
+      if (isInputEmpty()) {
+        alert("필수항목을 입력해주세요.");
+      } else {
+        if (componentRef.current && inputRef.current && moveToPageRef.current) {
+          const inputValue = inputRef.current.value.replace(/(\s*)/, "");
+          const moveToPageUrl = `${state.merchantValue}/${state.themeValue}/`;
+          const pageObject: IPageObjectType = {
+            component: componentRef.current.value,
+            answer: inputValue,
+            moveToPage: moveToPageUrl + moveToPageRef.current.value,
+          };
+          const pageListArray = [...pageList];
+          pageListArray.push(pageObject);
+          setPageList(pageListArray);
+        }
       }
-      const pageListArray: IPageObjectType[] = [...pageList];
-      pageListArray.push(pageObject);
-      setPageList(pageListArray);
-      initializeInput();
+    } else if (isCameraView) {
+      if (componentRef.current) {
+        const pageObject: IPageObjectType = {
+          component: componentRef.current.value,
+        };
+        const pageListArray = [...pageList];
+        pageListArray.push(pageObject);
+        setPageList(pageListArray);
+      }
     } else {
-      alert("필수항목을 입력해주세요.");
+      const pageListArray: IPageObjectType[] = [...pageList, ...selectedItem];
+      setPageList(pageListArray);
     }
   };
 
@@ -252,138 +243,167 @@ const Home = () => {
       setIsCameraView(false);
       setIsPasswordView(false);
     }
+    setComponentValue(value);
+  };
+
+  const initializeItemList = () => {
+    const itemList = document.getElementById("storageItemList");
+    setSelectedItem([]);
+    itemList?.childNodes.forEach((element: any) => {
+      if (element.className === "selected-item") {
+        element.className = "item";
+      }
+    });
   };
 
   return (
     <div className="box">
-      <button
-        onClick={() => {
-          console.log(state.merchantValue);
-          console.log(state.themeValue);
-          console.log(state);
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          float: "left",
+          width: "35%",
         }}
       >
-        확인하기
-      </button>
-      <div style={{ ...styles.card, float: "left", width: "35%" }}>
-        <Card className="bg-dark text-white w-100 text-center h-100">
+        <Card className="bg-dark text-white text-center h-100">
           <Card.Header>
             <Card.Title>X-KIT Manager</Card.Title>
           </Card.Header>
           <Card.Body>
-            <SearchContainer
-              state={state}
-              merchantChanged={merchantChanged}
-              themeChanged={themeChanged}
-              pageChanged={pageChanged}
-            />
-            <div className="w-100" style={styles.inputGroup}>
-              <InputGroup
-                style={{
-                  alignItems: "center",
-                }}
-              >
-                <Form.Label className="w-25" column={true} style={styles.label}>
-                  종류
-                </Form.Label>
-                <Form.Select
-                  onChange={(e) => checkCompoent(e)}
-                  className="w-50"
-                  style={styles.select}
-                  ref={componentRef}
+            <div>
+              <SearchContainer
+                state={state}
+                merchantChanged={merchantChanged}
+                themeChanged={themeChanged}
+                pageChanged={pageChanged}
+              />
+              <div className="w-100" style={styles.inputGroup}>
+                <InputGroup
+                  style={{
+                    alignItems: "center",
+                  }}
                 >
-                  {viewName &&
-                    Object.entries(viewName).map(
-                      (element: any, index: number): any => {
-                        return (
-                          <option
-                            label={element[1]}
-                            value={element[0]}
-                            key={index}
-                          ></option>
-                        );
-                      }
-                    )}
-                </Form.Select>
-              </InputGroup>
-            </div>
-            {isCameraView ? (
-              <></>
-            ) : (
-              <div>
-                <InputGroup style={styles.inputGroup}>
                   <Form.Label
                     className="w-25"
                     column={true}
                     style={styles.label}
                   >
-                    {isPasswordView ? "Answer" : "URL"}
-                  </Form.Label>
-                  <Form.Control
-                    className="w-50"
-                    ref={inputRef}
-                    type="text"
-                    style={styles.select}
-                  ></Form.Control>
-                </InputGroup>
-              </div>
-            )}
-            {isPasswordView ? (
-              <div>
-                <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
-                    이동할 페이지
+                    종류
                   </Form.Label>
                   <Form.Select
+                    onChange={(e) => checkCompoent(e)}
                     className="w-50"
                     style={styles.select}
-                    ref={moveToPageRef}
-                    disabled={isPasswordView ? false : true}
+                    ref={componentRef}
+                    id="component"
                   >
-                    {state.pageList.map((value, index) => {
-                      return (
-                        <option
-                          label={value}
-                          value={value}
-                          key={index}
-                        ></option>
-                      );
-                    })}
+                    {viewName &&
+                      Object.entries(viewName).map(
+                        (element: any, index: number): any => {
+                          return (
+                            <option
+                              label={element[1]}
+                              value={element[0]}
+                              key={index}
+                            ></option>
+                          );
+                        }
+                      )}
                   </Form.Select>
                 </InputGroup>
               </div>
-            ) : (
-              <></>
-            )}
-            <div>
-              <Button
-                onClick={addPageList}
-                variant="light"
-                style={styles.button}
-              >
-                +
-              </Button>
-              <Button
-                onClick={saveComponent}
-                style={styles.button}
-                disabled={isModified ? false : true}
-              >
-                저장
-              </Button>
-              <Button
-                variant="danger"
-                style={styles.button}
-                onClick={initializePageList}
-                disabled={isModified ? false : true}
-              >
-                초기화
-              </Button>
+              {isCameraView ? (
+                <></>
+              ) : (
+                <div>
+                  <InputGroup style={styles.inputGroup}>
+                    <Form.Label
+                      className="w-25"
+                      column={true}
+                      style={styles.label}
+                    >
+                      Answer
+                    </Form.Label>
+                    <Form.Control
+                      className="w-50"
+                      ref={inputRef}
+                      type="text"
+                      style={styles.select}
+                    ></Form.Control>
+                  </InputGroup>
+                </div>
+              )}
+              {isPasswordView ? (
+                <div>
+                  <InputGroup style={styles.inputGroup}>
+                    <Form.Label
+                      className="w-25"
+                      column={true}
+                      style={styles.label}
+                    >
+                      이동할 페이지
+                    </Form.Label>
+                    <Form.Select
+                      className="w-50"
+                      style={styles.select}
+                      ref={moveToPageRef}
+                      disabled={isPasswordView ? false : true}
+                    >
+                      {state.pageList.map((value, index) => {
+                        return (
+                          <option
+                            label={value}
+                            value={value}
+                            key={index}
+                          ></option>
+                        );
+                      })}
+                    </Form.Select>
+                  </InputGroup>
+                </div>
+              ) : (
+                <></>
+              )}
+              <div>
+                <Button
+                  onClick={addPageList}
+                  variant="light"
+                  style={styles.button}
+                >
+                  +
+                </Button>
+                <Button
+                  onClick={saveComponent}
+                  style={styles.button}
+                  disabled={isModified ? false : true}
+                >
+                  저장
+                </Button>
+                <Button
+                  variant="danger"
+                  style={styles.button}
+                  onClick={initializePageList}
+                  disabled={isModified ? false : true}
+                >
+                  초기화
+                </Button>
+              </div>
             </div>
-            <StorageItemList />
+            <div>
+              {componentRef.current && (
+                <StorageItemList
+                  initializeItemList={initializeItemList}
+                  component={componentValue}
+                  merchant={state.merchantValue}
+                  theme={state.themeValue}
+                  pageList={pageList}
+                  setPageList={setPageList}
+                  selectedItem={selectedItem}
+                  setSelectedItem={setSelectedItem}
+                />
+              )}
+            </div>
           </Card.Body>
         </Card>
       </div>
@@ -392,8 +412,8 @@ const Home = () => {
           textAlign: "center",
           display: "flex",
           justifyContent: "center",
-          overflowY: "scroll",
-          height: "100vh",
+          // overflowY: "scroll",
+          // height: "100%",
         }}
       >
         <PageList pageList={pageList} setPageList={setPageList} />
@@ -422,11 +442,6 @@ const styles = {
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
     fontWeight: 700,
-  },
-  card: {
-    display: "fixed",
-    height: "100vh",
-    minHeight: 500,
   },
   inputGroup: {
     margin: 5,

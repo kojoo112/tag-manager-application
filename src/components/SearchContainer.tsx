@@ -1,14 +1,5 @@
-import { Card } from "react-bootstrap";
 import FormSelect from "./FormSelect";
-
-interface IState {
-  merchantList: string[];
-  themeList: string[];
-  pageList: string[];
-  merchantValue: string;
-  themeValue: string;
-  pageValue: string;
-}
+import { IState } from "../util/interface";
 
 const SearchContainer = (props: {
   state: IState;
