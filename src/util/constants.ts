@@ -5,3 +5,7 @@ export const PAGE_CHANGED: string = "PAGE_CHANGED";
 export const IMAGE = ["jpg", "gif", "jpeg", "png"];
 export const AUDIO = ["mp3"];
 export const VIDEO = ["mp4"];
+export const IMAGE_VIEW = "ImageView";
+export const AUDIO_VIEW = "AudioView";
+export const VIDEO_VIEW = "VideoView";
+export const PASSWORD_TAG_VIEW = "PasswordTagView";

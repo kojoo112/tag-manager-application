@@ -18,3 +18,9 @@ export interface IAction {
   type: string;
   payload: any;
 }
+
+export interface IItemList {
+  prefix: string;
+  name: string;
+  suffix: string;
+}

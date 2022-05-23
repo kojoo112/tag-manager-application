@@ -2,7 +2,12 @@ import { ChangeEvent, useEffect, useReducer, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
-import { getData, storeNewComponents } from "../util/util";
+import {
+  getData,
+  getFileExtensionName,
+  getItemList,
+  storeNewComponents,
+} from "../util/util";
 import StorageItemList from "../components/StorageItemList";
 import {
   INIT_DATA,
@@ -10,7 +15,7 @@ import {
   THEME_CHANGED,
   PAGE_CHANGED,
 } from "../util/constants";
-import { IState, IAction, IPageObjectType } from "../util/interface";
+import { IState, IAction, IPageObjectType, IItemList } from "../util/interface";
 
 const initialState = {
   merchantList: [""],
@@ -54,6 +59,32 @@ const Home = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const [storageItems, setStorageItems] = useState<any[]>();
+
+  const formatItemList = (items: any[]) => {
+    let itemListObjectArray: IItemList[];
+    return (itemListObjectArray = items.map((element) => {
+      return {
+        prefix: `https://firebasestorage.googleapis.com/v0/b/xcape-hint-app.appspot.com/o/${state.merchantValue}%2F${state.themeValue}%2F${componentValue}%2F`,
+        name: element.name,
+        suffix: "?alt=media",
+      };
+    }));
+  };
+
+  const setStorageData = () => {
+    getItemList(
+      `${state.merchantValue}/${state.themeValue}/${componentValue}`
+    ).then((res) => {
+      if (res.items.length > 0) {
+        const formattedItemList = formatItemList(res.items);
+        setStorageItems(formattedItemList);
+      } else {
+        setStorageItems([]);
+      }
+    });
+  };
+
   const getMerchantList = async (): Promise<any> => {
     return await getData("/merchants");
   };
@@ -96,7 +127,6 @@ const Home = () => {
       pageValue: "page01",
     };
     setOriginalPageList(tagList);
-    initializeItemList();
     setPageList(tagList);
     dispatch({ type: MERCHANT_CHANGED, payload: data });
   };
@@ -113,7 +143,6 @@ const Home = () => {
       pageValue: "page01",
     };
     setOriginalPageList(tagList);
-    initializeItemList();
     setPageList(tagList);
     dispatch({ type: THEME_CHANGED, payload: data });
   };
@@ -162,6 +191,11 @@ const Home = () => {
       setIsModified(false);
     }
   }, [pageList]);
+
+  useEffect(() => {
+    initializeItemList();
+    setStorageData();
+  }, [state.merchantValue, state.themeValue, componentValue]);
 
   const initializeInput = () => {
     if (inputRef.current) {
@@ -215,6 +249,7 @@ const Home = () => {
     } else {
       const pageListArray: IPageObjectType[] = [...pageList, ...selectedItem];
       setPageList(pageListArray);
+      initializeItemList();
     }
   };
 
@@ -263,15 +298,16 @@ const Home = () => {
           position: "sticky",
           top: 0,
           float: "left",
-          width: "35%",
+          width: "40%",
+          height: "100vh",
         }}
       >
-        <Card className="bg-dark text-white text-center h-100">
+        <Card className="bg-dark text-white text-center">
           <Card.Header>
             <Card.Title>X-KIT Manager</Card.Title>
           </Card.Header>
           <Card.Body>
-            <div>
+            <div style={{ height: "50%" }}>
               <SearchContainer
                 state={state}
                 merchantChanged={merchantChanged}
@@ -386,11 +422,19 @@ const Home = () => {
                 >
                   초기화
                 </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => console.log(selectedItem)}
+                >
+                  getData
+                </Button>
               </div>
             </div>
-            <div>
+            <div style={{ height: 400, display: "flex", overflowX: "scroll" }}>
               {componentRef.current && (
                 <StorageItemList
+                  storageItems={storageItems}
+                  setStorageItems={setStorageItems}
                   initializeItemList={initializeItemList}
                   component={componentValue}
                   merchant={state.merchantValue}
@@ -410,7 +454,7 @@ const Home = () => {
           textAlign: "center",
           display: "flex",
           justifyContent: "center",
-          // overflowY: "scroll",
+          width: "60%",
           // height: "100%",
         }}
       >
