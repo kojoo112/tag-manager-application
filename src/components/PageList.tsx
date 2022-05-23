@@ -9,21 +9,29 @@ import {
 } from "react-beautiful-dnd";
 import { Trash3 } from "react-bootstrap-icons";
 import { IPageObjectType } from "../util/interface";
+import { IMAGE_VIEW, PASSWORD_TAG_VIEW, VIDEO_VIEW } from "../util/constants";
 
 const showContent = (item: IPageObjectType) => {
   const value = item.component;
-
-  if (value === "ImageView") {
-    return <img src={item.url} alt="" width={400} />;
+  if (value === IMAGE_VIEW) {
+    return <img src={item.url} alt="" width={"50%"} />;
   } else if (value === "AudioView") {
     return (
       <div>
-        <img src={tape} alt="" height={200} />
+        <img src={tape} alt="" width={"50%"} />
         <audio style={{ width: "100%" }} controls={true} src={item.url} />
       </div>
     );
-  } else if (value === "VideoView") {
-    return <video controls={true} width={400} src={item.url}></video>;
+  } else if (value === VIDEO_VIEW) {
+    return <video controls={true} width={"100%"} src={item.url}></video>;
+  } else if (value === PASSWORD_TAG_VIEW) {
+    return (
+      <div>
+        <>answer : {item.answer}</>
+        <br />
+        <>이동할 페이지 : {item.moveToPage?.split("/")[2]}</>
+      </div>
+    );
   }
   return;
 };
@@ -58,7 +66,7 @@ const getItemStyle = (
 const getListStyle = (isDraggingOver: boolean): object => ({
   background: isDraggingOver ? "lightblue" : "lightgrey",
   padding: grid,
-  width: 500,
+  width: "50%",
   position: "relative",
   height: "fit-content",
 });
@@ -171,10 +179,8 @@ const PageList = (props: {
                           }}
                         />
                       </div>
-                      <>종류 : {item.component}</>
                       <div>
                         <>{showContent(item)}</>
-                        <br />
                       </div>
                     </div>
                   )}
