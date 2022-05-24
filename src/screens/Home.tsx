@@ -218,6 +218,7 @@ const Home = () => {
     if (isPasswordView) {
       if (isInputEmpty()) {
         alert("필수항목을 입력해주세요.");
+        return;
       } else {
         if (componentRef.current && inputRef.current && moveToPageRef.current) {
           const inputValue = inputRef.current.value.replace(/(\s*)/, "");
@@ -246,6 +247,7 @@ const Home = () => {
       setPageList(pageListArray);
       initializeItemList();
     }
+    setIsModified(true);
   };
 
   const saveComponent = () => {
@@ -254,6 +256,7 @@ const Home = () => {
       const ref = `/tagView/${state.merchantValue}/${state.themeValue}/${state.pageValue}/components`;
       storeNewComponents(ref, pageList).then(() => {
         setIsModified(false);
+        setOriginalPageList(pageList);
         alert("성공적으로 저장했습니다.");
       });
     } else {
