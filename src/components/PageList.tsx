@@ -180,6 +180,9 @@ const PageList = (props: {
                         />
                       </div>
                       <div>
+                        <>View 종류 : {item.component}</>
+                      </div>
+                      <div>
                         <>{showContent(item)}</>
                       </div>
                     </div>

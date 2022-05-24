@@ -320,7 +320,7 @@ const Home = () => {
                     column={true}
                     style={styles.label}
                   >
-                    종류
+                    View 종류
                   </Form.Label>
                   <Form.Select
                     onChange={(e) => checkCompoent(e)}

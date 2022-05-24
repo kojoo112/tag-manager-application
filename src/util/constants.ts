@@ -9,3 +9,4 @@ export const IMAGE_VIEW = "ImageView";
 export const AUDIO_VIEW = "AudioView";
 export const VIDEO_VIEW = "VideoView";
 export const PASSWORD_TAG_VIEW = "PasswordTagView";
+export const CAMERA_VIEW = "CameraView";
