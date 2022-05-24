@@ -97,8 +97,6 @@ const StorageItemList = (props: {
     e: React.MouseEvent<HTMLImageElement | HTMLVideoElement>
   ) => {
     const divElement = e.currentTarget.parentElement?.parentElement;
-    console.log(divElement);
-    console.log("clicked");
     if (divElement) {
       if (divElement.className == "item") {
         divElement.className = "selected-item";
