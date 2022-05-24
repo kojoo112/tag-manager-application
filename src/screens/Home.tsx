@@ -2,12 +2,7 @@ import { ChangeEvent, useEffect, useReducer, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
-import {
-  getData,
-  getFileExtensionName,
-  getItemList,
-  storeNewComponents,
-} from "../util/util";
+import { getData, getItemList, storeNewComponents } from "../util/util";
 import StorageItemList from "../components/StorageItemList";
 import {
   INIT_DATA,
@@ -421,12 +416,6 @@ const Home = () => {
                   disabled={isModified ? false : true}
                 >
                   초기화
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => console.log(selectedItem)}
-                >
-                  getData
                 </Button>
               </div>
             </div>
