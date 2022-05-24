@@ -38,24 +38,21 @@ const StorageItemList = (props: {
       );
     } else if (extensionName === AUDIO_VIEW) {
       return (
-        <div style={{ ...styles.item }}>
-          <div>
-            <img
-              style={{ cursor: "pointer" }}
-              src={tape}
-              alt=""
-              height={"20%"}
-              onClick={(e) => {
-                selected(e);
-              }}
-              id={item.prefix + item.name + item.suffix}
-            />
-            <audio
-              style={{ width: "100%" }}
-              controls={true}
-              src={item.prefix + item.name + item.suffix}
-            />
-          </div>
+        <div style={{ padding: 5 }}>
+          <img
+            style={{ cursor: "pointer" }}
+            src={tape}
+            alt=""
+            onClick={(e) => {
+              selected(e);
+            }}
+            id={item.prefix + item.name + item.suffix}
+          />
+          <audio
+            style={{ width: "100%" }}
+            controls={true}
+            src={item.prefix + item.name + item.suffix}
+          />
         </div>
       );
     } else if (extensionName === VIDEO_VIEW) {
@@ -100,6 +97,8 @@ const StorageItemList = (props: {
     e: React.MouseEvent<HTMLImageElement | HTMLVideoElement>
   ) => {
     const divElement = e.currentTarget.parentElement?.parentElement;
+    console.log(divElement);
+    console.log("clicked");
     if (divElement) {
       if (divElement.className == "item") {
         divElement.className = "selected-item";
