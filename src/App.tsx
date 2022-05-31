@@ -1,12 +1,20 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Home from "./screens/Home";
-import StorageItemList from "./components/StorageItemList";
+import Navigation from "./components/Navigation";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HintManager from "./screens/HintManager";
 
 const App = () => {
   return (
     <div className="App">
-      <Home />
+      <Navigation />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/hint-manager" element={<HintManager />}></Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 };
