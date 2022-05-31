@@ -31,19 +31,12 @@ export const getData = async (
   }
 };
 
-export const storeNewComponents = async (
-  reference: string,
-  components: object[]
-) => {
+export const setData = async (reference: string, data: object) => {
   try {
-    await set(ref(firebaseDB, reference), components);
+    await set(ref(firebaseDB, reference), data);
   } catch (e) {
     console.error("util.tsx >>> storeNewComponents >>> ", e);
   }
-};
-
-export const imageRef = () => {
-  return Storage.ref(firebaseStorage, "image.jpeg");
 };
 
 export const imagesRef = Storage.ref(firebaseStorage, "images");
@@ -65,4 +58,12 @@ export const getFileExtensionName = (extension: string): string => {
     return VIDEO_VIEW;
   }
   return "";
+};
+
+export const getMerchantList = async (): Promise<any> => {
+  return await getData("/merchants");
+};
+
+export const getThemeList = async (merchantCode: string): Promise<any> => {
+  return await getData(`/themes/${merchantCode}`);
 };

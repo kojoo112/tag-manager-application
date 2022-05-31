@@ -1,8 +1,14 @@
 import { ChangeEvent, useEffect, useReducer, useRef, useState } from "react";
-import { Button, Card, Form, InputGroup, Nav } from "react-bootstrap";
+import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
-import { getData, getItemList, storeNewComponents } from "../util/util";
+import {
+  getData,
+  getItemList,
+  setData,
+  getMerchantList,
+  getThemeList,
+} from "../util/util";
 import StorageItemList from "../components/StorageItemList";
 import {
   INIT_DATA,
@@ -78,14 +84,6 @@ const Home = () => {
         setStorageItems([]);
       }
     });
-  };
-
-  const getMerchantList = async (): Promise<any> => {
-    return await getData("/merchants");
-  };
-
-  const getThemeList = async (merchantCode: string): Promise<any> => {
-    return await getData(`/themes/${merchantCode}`);
   };
 
   const getPageList = async (
@@ -180,7 +178,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (JSON.stringify(pageList) !== JSON.stringify(originalPageList)) {
+    if (JSON.stringify(pageList) != JSON.stringify(originalPageList)) {
       setIsModified(true);
     } else {
       setIsModified(false);
@@ -254,7 +252,7 @@ const Home = () => {
     const isSave = window.confirm("저장 하시겠습니까?");
     if (isSave) {
       const ref = `/tagView/${state.merchantValue}/${state.themeValue}/${state.pageValue}/components`;
-      storeNewComponents(ref, pageList).then(() => {
+      setData(ref, pageList).then(() => {
         setIsModified(false);
         setOriginalPageList(pageList);
         alert("성공적으로 저장했습니다.");
