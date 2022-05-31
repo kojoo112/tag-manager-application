@@ -381,18 +381,13 @@ const HintManager = () => {
                 </InputGroup>
               </div>
             </div>
-            <div>
-              <Button variant="primary">저장</Button>
+            <div style={{ width: "8%" }}>
               <Button
                 variant="primary"
-                onClick={() => {
-                  createRandomCode();
-                }}
+                onClick={addHint}
+                style={{ width: "100%" }}
               >
-                코드생성
-              </Button>
-              <Button variant="primary" onClick={addHint}>
-                힌트추가
+                저장
               </Button>
             </div>
           </div>
