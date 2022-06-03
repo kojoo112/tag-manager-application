@@ -198,29 +198,39 @@ const HintManager = () => {
       message2 !== undefined &&
       message2 !== ""
     ) {
-      if (state.hintList !== undefined && validateHintCode(code)) {
+      if (hintList !== undefined && validateHintCode(code)) {
+        const hintCode = code.toUpperCase();
+
         const newHint = {
-          [code]: {
+          [hintCode]: {
             createTime: {
               value: {
                 _seconds: Math.floor(+new Date() / 1000),
               },
               __datatype__: "timestamp",
             },
-            key: code,
+            key: hintCode,
             message1: message1,
             message2: message2,
-            seq: (Object.keys(state.hintList).length + 1).toString(),
+            seq: (Object.keys(hintList).length + 1).toString(),
             use: true,
           },
         };
 
         const addedHintList = Object.assign({ ...newHint, ...hintList });
 
-        await setData(`/hintCode/${state.merchantValue}/${state.themeValue}`, {
-          ...addedHintList,
+        const getHintListAfterSetData = await setData(
+          `/hintCode/${state.merchantValue}/${state.themeValue}`,
+          {
+            ...addedHintList,
+          }
+        ).then(() => {
+          return getData(
+            `/hintCode/${state.merchantValue}/${state.themeValue}`
+          );
         });
-        setHintList(addedHintList);
+
+        setHintList(getHintListAfterSetData);
         initializeInput();
         alert("추가되었습니다.");
       }
