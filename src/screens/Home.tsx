@@ -295,7 +295,7 @@ const Home = () => {
           top: 0,
           float: "left",
           width: "40%",
-          height: "100vh",
+          height: "100%",
         }}
       >
         <Card className="bg-dark text-white text-center">
@@ -420,7 +420,9 @@ const Home = () => {
                 </Button>
               </div>
             </div>
-            <div style={{ height: 400, display: "flex", overflowX: "scroll" }}>
+            <div
+              style={{ height: "100%", display: "flex", overflowX: "scroll" }}
+            >
               {componentRef.current && (
                 <StorageItemList
                   storageItems={storageItems}
@@ -481,4 +483,5 @@ const styles = {
   button: {
     margin: 5,
   },
+  asdf: {},
 };
