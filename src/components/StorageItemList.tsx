@@ -27,7 +27,7 @@ const StorageItemList = (props: {
         <div style={styles.item}>
           <img
             style={{ cursor: "pointer" }}
-            height={"70%"}
+            height={"300px"}
             onClick={(e) => {
               selected(e);
             }}
@@ -38,9 +38,9 @@ const StorageItemList = (props: {
       );
     } else if (extensionName === AUDIO_VIEW) {
       return (
-        <div style={{ padding: 5 }}>
+        <div style={styles.item}>
           <img
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", width: "300px" }}
             src={tape}
             alt=""
             onClick={(e) => {
@@ -61,11 +61,12 @@ const StorageItemList = (props: {
           <video
             id={item.prefix + item.name + item.suffix}
             onClick={(e) => {
+              e.preventDefault();
               selected(e);
             }}
             style={{ cursor: "pointer" }}
-            // controls={true}
-            height={"70%"}
+            controls={true}
+            height={"300px"}
             width={""}
             src={item.prefix + item.name + item.suffix}
           ></video>
@@ -138,9 +139,7 @@ export default StorageItemList;
 
 const styles = {
   item: {
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
+    height: "fit-content",
     padding: 5,
   },
 };
