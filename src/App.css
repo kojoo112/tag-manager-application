@@ -1,5 +1,7 @@
 .selected-item {
-  background-color: #ebebeb;
+  background-color: #5d666f;
+  margin: 0 5px;
+  border: 1px solid #fff;
 }
 
 ::-webkit-scrollbar {
