@@ -67,3 +67,14 @@ export const getMerchantList = async (): Promise<any> => {
 export const getThemeList = async (merchantCode: string): Promise<any> => {
   return await getData(`/themes/${merchantCode}`);
 };
+
+export const addPage = async (
+  reference: string,
+  pageName: string
+): Promise<any> => {
+  try {
+    await set(ref(firebaseDB, reference + `/${pageName}`), { dummy: pageName });
+  } catch (e) {
+    console.error("util.tsx >>> addPage >>> ", e);
+  }
+};
