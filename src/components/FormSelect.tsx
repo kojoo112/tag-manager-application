@@ -18,7 +18,7 @@ const FormSelect = (props: {
           className="w-50"
           style={styles.select}
           value={value}
-          onChange={(e) => props.action(e.target.value)}
+          onChange={(e) => action(e.target.value)}
         >
           {Array.isArray(items)
             ? items.map((value, index) => {

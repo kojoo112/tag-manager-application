@@ -1,5 +1,18 @@
-import { ChangeEvent, useEffect, useReducer, useRef, useState } from "react";
-import { Button, Card, Form, InputGroup } from "react-bootstrap";
+import React, {
+  ChangeEvent,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import {
+  Button,
+  Card,
+  Form,
+  InputGroup,
+  OverlayTrigger,
+  Popover,
+} from "react-bootstrap";
 import PageList from "../components/PageList";
 import SearchContainer from "../components/SearchContainer";
 import {
@@ -8,6 +21,7 @@ import {
   setData,
   getMerchantList,
   getThemeList,
+  addPage,
 } from "../util/util";
 import StorageItemList from "../components/StorageItemList";
 import {
@@ -61,6 +75,8 @@ const Home = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const [storageItems, setStorageItems] = useState<any[]>();
+
+  const pageName = useRef<any>();
 
   const formatItemList = (items: any[]) => {
     let itemListObjectArray: IItemList[];
@@ -178,7 +194,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (JSON.stringify(pageList) != JSON.stringify(originalPageList)) {
+    if (JSON.stringify(pageList) !== JSON.stringify(originalPageList)) {
       setIsModified(true);
     } else {
       setIsModified(false);
@@ -286,6 +302,40 @@ const Home = () => {
       }
     });
   };
+
+  const FormToAddPage = (
+    <Popover>
+      <Popover.Body>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const page = pageName.current;
+            const ref = `/tagView/${state.merchantValue}/${state.themeValue}`;
+
+            getData(ref).then((result) => {
+              if (!(page in result)) {
+                addPage(ref, page).then(() => {
+                  alert("페이지를 생성했습니다!");
+                  window.location.reload();
+                });
+              } else {
+                alert("동일한 페이지가 존재합니다!");
+              }
+            });
+          }}
+        >
+          <Form.Label>페이지 이름</Form.Label>
+          <Form.Control
+            placeholder="예) page01"
+            onChange={(e) => {
+              pageName.current = e.target.value;
+            }}
+            ref={pageName}
+          ></Form.Control>
+        </Form>
+      </Popover.Body>
+    </Popover>
+  );
 
   return (
     <div className="box">
@@ -418,6 +468,17 @@ const Home = () => {
                 >
                   초기화
                 </Button>
+                <OverlayTrigger
+                  trigger="click"
+                  overlay={FormToAddPage}
+                  placement="right"
+                  defaultShow={false}
+                  onHide={undefined}
+                  onToggle={() => {}}
+                  popperConfig={{}}
+                >
+                  <Button variant="primary">페이지 추가</Button>
+                </OverlayTrigger>
               </div>
             </div>
             <div
@@ -483,5 +544,4 @@ const styles = {
   button: {
     margin: 5,
   },
-  asdf: {},
 };
