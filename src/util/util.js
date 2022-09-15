@@ -10,10 +10,7 @@ import {
   VIDEO_VIEW,
 } from "./constants";
 
-export const getData = async (
-  reference: string,
-  isReturnKeys: boolean = true
-) => {
+export const getData = async (reference, isReturnKeys = true) => {
   try {
     return await get(ref(firebaseDB, reference)).then((snapshot) => {
       if (snapshot.exists()) {
@@ -31,7 +28,7 @@ export const getData = async (
   }
 };
 
-export const setData = async (reference: string, data: object) => {
+export const setData = async (reference, data) => {
   try {
     await set(ref(firebaseDB, reference), data);
   } catch (e) {
@@ -41,7 +38,7 @@ export const setData = async (reference: string, data: object) => {
 
 export const imagesRef = Storage.ref(firebaseStorage, "images");
 
-export const getItemList = async (reference: string) => {
+export const getItemList = async (reference) => {
   return await Storage.listAll(Storage.ref(firebaseStorage, reference)).then(
     (res) => {
       return res;
@@ -49,7 +46,7 @@ export const getItemList = async (reference: string) => {
   );
 };
 
-export const getFileExtensionName = (extension: string): string => {
+export const getFileExtensionName = (extension) => {
   if (IMAGE.includes(extension)) {
     return IMAGE_VIEW;
   } else if (AUDIO.includes(extension)) {
@@ -60,18 +57,15 @@ export const getFileExtensionName = (extension: string): string => {
   return "";
 };
 
-export const getMerchantList = async (): Promise<any> => {
+export const getMerchantList = async () => {
   return await getData("/merchants");
 };
 
-export const getThemeList = async (merchantCode: string): Promise<any> => {
+export const getThemeList = async (merchantCode) => {
   return await getData(`/themes/${merchantCode}`);
 };
 
-export const addPage = async (
-  reference: string,
-  pageName: string
-): Promise<any> => {
+export const addPage = async (reference, pageName) => {
   try {
     await set(ref(firebaseDB, reference + `/${pageName}`), { dummy: pageName });
   } catch (e) {

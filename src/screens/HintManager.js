@@ -12,7 +12,7 @@ const initialState = {
   hintList: [],
 };
 
-const reducer = (state: IState, action: IAction): IState => {
+const reducer = (state, action) => {
   switch (action.type) {
     case INIT_DATA:
       return { ...action.payload };
@@ -25,35 +25,18 @@ const reducer = (state: IState, action: IAction): IState => {
   }
 };
 
-interface IHint {
-  key: string;
-  message1: string;
-  message2: string;
-  createTime?: object;
-  seq?: string;
-  use?: boolean;
-}
-
-interface IState {
-  merchantList: string[];
-  themeList: string[];
-  merchantValue: string;
-  themeValue: string;
-  hintList: IHint[];
-}
-
 const HintManager = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [hintList, setHintList] = useState<IHint[]>();
-  const [code, setCode] = useState<string>();
-  const [message1, setMessage1] = useState<string>("");
-  const [message2, setMessage2] = useState<string>("");
-  const [seq, setSeq] = useState<number>();
+  const [hintList, setHintList] = useState();
+  const [code, setCode] = useState();
+  const [message1, setMessage1] = useState("");
+  const [message2, setMessage2] = useState("");
+  const [seq, setSeq] = useState();
 
-  const message1Ref = useRef<HTMLInputElement>(null);
-  const message2Ref = useRef<HTMLInputElement>(null);
+  const message1Ref = useRef(null);
+  const message2Ref = useRef(null);
 
-  const merchantChanged = async (merchantCode: string) => {
+  const merchantChanged = async (merchantCode) => {
     const theme = await getThemeList(merchantCode);
     const hintList = await getHintList(merchantCode, Object.keys(theme)[0]);
     const data = {
@@ -66,7 +49,7 @@ const HintManager = () => {
     dispatch({ type: MERCHANT_CHANGED, payload: data });
   };
 
-  const themeChanged = async (themeCode: string) => {
+  const themeChanged = async (themeCode) => {
     const hintList = await getHintList(state.merchantValue, themeCode);
     const data = {
       merchantList: state.merchantList,
@@ -79,16 +62,13 @@ const HintManager = () => {
     dispatch({ type: THEME_CHANGED, payload: data });
   };
 
-  const getHintList = async (
-    merchantCode: string,
-    themeCode: string
-  ): Promise<IHint[]> => {
+  const getHintList = async (merchantCode, themeCode) => {
     const hintList = await getData(`/hintCode/${merchantCode}/${themeCode}`);
     setHintList(hintList);
     return hintList;
   };
 
-  const validateHintCode = (hintCode: any) => {
+  const validateHintCode = (hintCode) => {
     if (hintCode !== null) {
       hintCode = hintCode.toUpperCase();
       const hintRegExp = new RegExp("[A-Z]{3}[\\d]{2}", "g");
@@ -109,7 +89,7 @@ const HintManager = () => {
     }
   };
 
-  const modifyHintCode = async (e: any) => {
+  const modifyHintCode = async (e) => {
     let newHintCode = prompt(
       "변경할 힌트코드를 입력해주세요.",
       "영문 3글자, 숫자 2글자 형식입니다."
@@ -119,12 +99,12 @@ const HintManager = () => {
         newHintCode = newHintCode.toUpperCase();
         const hintCode = e.currentTarget.childNodes[0].nodeValue;
 
-        const originalHintList: IHint[] = { ...state.hintList };
+        const originalHintList = { ...state.hintList };
         const temp = originalHintList[hintCode];
 
         const newHint = { [newHintCode]: { ...temp, key: newHintCode } };
         delete originalHintList[hintCode];
-        const newHintList: IHint[] = Object.assign(newHint, originalHintList);
+        const newHintList = Object.assign(newHint, originalHintList);
 
         await setData(
           `/hintCode/${state.merchantValue}/${state.themeValue}`,
@@ -136,7 +116,7 @@ const HintManager = () => {
     }
   };
 
-  const modifyHintMessage = async (message: string, key: any) => {
+  const modifyHintMessage = async (message, key) => {
     let newMessage = prompt("변경할 메세지를 입력해주세요. 💻");
     if (newMessage !== null) {
       if (hintList !== undefined) {
@@ -152,11 +132,11 @@ const HintManager = () => {
     }
   };
 
-  const mouseOver = (e: any) => {
+  const mouseOver = (e) => {
     e.target.style = "border: 2px solid white; cursor: pointer";
   };
 
-  const mouseOut = (e: any) => {
+  const mouseOut = (e) => {
     e.target.style = "";
   };
 
@@ -240,7 +220,7 @@ const HintManager = () => {
     }
   };
 
-  const onChange = (e: any, setState: any) => {
+  const onChange = (e, setState) => {
     setState(e.target.value);
   };
 
@@ -295,7 +275,7 @@ const HintManager = () => {
                     style={styles.select}
                   >
                     {Object.entries(state.merchantList).map(
-                      (element: any, index: number) => {
+                      (element, index) => {
                         return (
                           <option
                             key={index}
@@ -322,17 +302,15 @@ const HintManager = () => {
                     onChange={(e) => themeChanged(e.target.value)}
                     style={styles.select}
                   >
-                    {Object.entries(state.themeList).map(
-                      (element: any, index: number) => {
-                        return (
-                          <option
-                            key={index}
-                            label={element[1]}
-                            value={element[0]}
-                          ></option>
-                        );
-                      }
-                    )}
+                    {Object.entries(state.themeList).map((element, index) => {
+                      return (
+                        <option
+                          key={index}
+                          label={element[1]}
+                          value={element[0]}
+                        ></option>
+                      );
+                    })}
                   </Form.Select>
                 </InputGroup>
                 <InputGroup style={styles.inputGroup}>

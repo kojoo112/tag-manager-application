@@ -4,21 +4,10 @@ import { IPageObjectType } from "../util/interface";
 import tape from "../assets/images/tape-play.gif";
 import { AUDIO_VIEW, IMAGE_VIEW, VIDEO_VIEW } from "../util/constants";
 
-const StorageItemList = (props: {
-  storageItems: any;
-  setStorageItems: Dispatch<SetStateAction<any>>;
-  initializeItemList: VoidFunction;
-  component: string;
-  merchant: string;
-  theme: string;
-  pageList: IPageObjectType[];
-  setPageList: Dispatch<SetStateAction<IPageObjectType[]>>;
-  selectedItem: IPageObjectType[];
-  setSelectedItem: Dispatch<SetStateAction<IPageObjectType[]>>;
-}) => {
+const StorageItemList = (props) => {
   const { storageItems, selectedItem, setSelectedItem } = props;
 
-  const showContent = (item: any) => {
+  const showContent = (item) => {
     const extension = item.name.split(".")[1];
     const extensionName = getFileExtensionName(extension);
 
@@ -34,6 +23,7 @@ const StorageItemList = (props: {
             }}
             id={item.prefix + item.name + item.suffix}
             src={item.prefix + item.name + item.suffix}
+            alt=""
           />
         </div>
       );
@@ -77,18 +67,18 @@ const StorageItemList = (props: {
     }
   };
 
-  const addItem = (url: string) => {
-    const pageObject: IPageObjectType = {
+  const addItem = (url) => {
+    const pageObject = {
       component: props.component,
       url: url,
     };
 
-    const itemListArray: IPageObjectType[] = [...selectedItem];
+    const itemListArray = [...selectedItem];
     itemListArray.push(pageObject);
     setSelectedItem(itemListArray);
   };
 
-  const removeItem = (url: string) => {
+  const removeItem = (url) => {
     const itemListArray = [...selectedItem];
     const removedItemList = itemListArray.filter((element) => {
       return element.url !== url;
@@ -96,12 +86,10 @@ const StorageItemList = (props: {
     setSelectedItem(removedItemList);
   };
 
-  const selected = (
-    e: React.MouseEvent<HTMLImageElement | HTMLVideoElement>
-  ) => {
+  const selected = (e) => {
     const divElement = e.currentTarget.parentElement?.parentElement;
     if (divElement) {
-      if (divElement.className == "item") {
+      if (divElement.className === "item") {
         divElement.className = "selected-item";
         addItem(e.currentTarget.id);
       } else {
@@ -121,7 +109,7 @@ const StorageItemList = (props: {
       id="storageItemList"
     >
       {storageItems &&
-        storageItems.map((element: any, index: number) => (
+        storageItems.map((element, index) => (
           <div
             key={index}
             className={"item"}

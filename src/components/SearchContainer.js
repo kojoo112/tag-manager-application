@@ -1,12 +1,7 @@
+import React from "react";
 import FormSelect from "./FormSelect";
-import { IState } from "../util/interface";
 
-const SearchContainer = (props: {
-  state: IState;
-  merchantChanged: Awaited<Promise<any>>;
-  themeChanged: Awaited<Promise<any>>;
-  pageChanged: Awaited<Promise<any>>;
-}) => {
+const SearchContainer = (props) => {
   const { state, merchantChanged, themeChanged, pageChanged } = props;
 
   return (

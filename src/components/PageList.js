@@ -11,8 +11,9 @@ import { Trash3 } from "react-bootstrap-icons";
 import { IPageObjectType } from "../util/interface";
 import { IMAGE_VIEW, PASSWORD_TAG_VIEW, VIDEO_VIEW } from "../util/constants";
 
-const showContent = (item: IPageObjectType) => {
+const showContent = (item) => {
   const value = item.component;
+  console.log(item);
   if (value === IMAGE_VIEW) {
     return <img src={item.url} alt="" width={"50%"} />;
   } else if (value === "AudioView") {
@@ -33,15 +34,10 @@ const showContent = (item: IPageObjectType) => {
       </div>
     );
   }
-  return;
 };
 
 // a little function to help us with reordering the result
-const reorder = (
-  list: IPageObjectType[],
-  startIndex: number,
-  endIndex: number
-) => {
+const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -51,10 +47,7 @@ const reorder = (
 
 const grid = 8;
 
-const getItemStyle = (
-  isDragging: boolean,
-  draggableStyle: DraggingStyle | NotDraggingStyle | undefined
-): object => ({
+const getItemStyle = (isDragging, draggableStyle) => ({
   overflowY: "scroll",
   userSelect: "none",
   padding: grid * 2,
@@ -63,7 +56,7 @@ const getItemStyle = (
   ...draggableStyle,
 });
 
-const getListStyle = (isDraggingOver: boolean): object => ({
+const getListStyle = (isDraggingOver) => ({
   background: isDraggingOver ? "lightblue" : "lightgrey",
   padding: grid,
   width: "50%",
@@ -73,27 +66,24 @@ const getListStyle = (isDraggingOver: boolean): object => ({
 
 const queryAttr = "data-rbd-drag-handle-draggable-id";
 
-const PageList = (props: {
-  pageList: IPageObjectType[];
-  setPageList: Dispatch<SetStateAction<IPageObjectType[]>>;
-}) => {
+const PageList = (props) => {
   const [placeholderProps, setPlaceholderProps] = useState({});
   const { pageList, setPageList } = props;
-  const [isHover, setIsHover] = useState<boolean>(false);
+  const [isHover, setIsHover] = useState(false);
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result) => {
     if (!result.destination) {
       return;
     }
 
     setPlaceholderProps({});
 
-    setPageList((pageList: IPageObjectType[]) =>
+    setPageList((pageList) =>
       reorder(pageList, result.source.index, result.destination.index)
     );
   };
 
-  const removeComponent = (item: number) => {
+  const removeComponent = (item) => {
     const pageListArray = [...pageList];
     const removedPageList = pageListArray.filter((el, index) => {
       return index !== item;
@@ -105,7 +95,7 @@ const PageList = (props: {
     }
   };
 
-  const onDragUpdate = (update: any) => {
+  const onDragUpdate = (update) => {
     if (!update.destination) {
       return;
     }
@@ -152,7 +142,7 @@ const PageList = (props: {
             style={getListStyle(snapshot.isDraggingOver)}
           >
             {pageList &&
-              pageList.map((item: IPageObjectType, index: number) => (
+              pageList.map((item, index) => (
                 <Draggable
                   key={`item${index}`}
                   draggableId={`item-${index}`}
