@@ -1,12 +1,9 @@
+import React from "react";
 import { Form, InputGroup } from "react-bootstrap";
 
-const FormSelect = (props: {
-  items: object;
-  label: string;
-  value: string;
-  action: Awaited<Promise<any>>;
-}) => {
+const FormSelect = (props) => {
   const { items, label, value, action } = props;
+  console.log(items);
 
   return (
     <div className="w-100" style={{ margin: 5 }}>
@@ -26,17 +23,15 @@ const FormSelect = (props: {
                   <option label={value} value={value} key={index}></option>
                 );
               })
-            : Object.entries(props.items).map(
-                (element: any, index: number): any => {
-                  return (
-                    <option
-                      label={element[1]}
-                      value={element[0]}
-                      key={index}
-                    ></option>
-                  );
-                }
-              )}
+            : Object.entries(items).map((element, index) => {
+                return (
+                  <option
+                    label={element[1]}
+                    value={element[0]}
+                    key={index}
+                  ></option>
+                );
+              })}
         </Form.Select>
       </InputGroup>
     </div>

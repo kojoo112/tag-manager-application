@@ -30,7 +30,6 @@ import {
   THEME_CHANGED,
   PAGE_CHANGED,
 } from "../util/constants";
-import { IState, IAction, IPageObjectType, IItemList } from "../util/interface";
 
 const initialState = {
   merchantList: [""],
@@ -41,7 +40,7 @@ const initialState = {
   pageValue: "page01",
 };
 
-const reducer = (state: IState, action: IAction): IState => {
+const reducer = (state, action) => {
   switch (action.type) {
     case INIT_DATA:
       return { ...action.payload };
@@ -57,29 +56,27 @@ const reducer = (state: IState, action: IAction): IState => {
 };
 
 const Home = () => {
-  const [pageList, setPageList] = useState<IPageObjectType[]>([]);
-  const [viewName, setViewName] = useState<object>({});
-  const [isPasswordView, setIsPasswordView] = useState<boolean>(false);
-  const [isCameraView, setIsCameraView] = useState<boolean>(false);
-  const [originalPageList, setOriginalPageList] = useState<IPageObjectType[]>(
-    []
-  );
-  const [isModified, setIsModified] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<IPageObjectType[]>([]);
-  const [componentValue, setComponentValue] = useState<string>("");
+  const [pageList, setPageList] = useState([]);
+  const [viewName, setViewName] = useState({});
+  const [isPasswordView, setIsPasswordView] = useState(false);
+  const [isCameraView, setIsCameraView] = useState(false);
+  const [originalPageList, setOriginalPageList] = useState([]);
+  const [isModified, setIsModified] = useState(false);
+  const [selectedItem, setSelectedItem] = useState([]);
+  const [componentValue, setComponentValue] = useState("");
 
-  const componentRef = useRef<HTMLSelectElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const moveToPageRef = useRef<HTMLSelectElement>(null);
+  const componentRef = useRef(null);
+  const inputRef = useRef(null);
+  const moveToPageRef = useRef(null);
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [storageItems, setStorageItems] = useState<any[]>();
+  const [storageItems, setStorageItems] = useState();
 
-  const pageName = useRef<any>();
+  const pageName = useRef();
 
-  const formatItemList = (items: any[]) => {
-    let itemListObjectArray: IItemList[];
+  const formatItemList = (items) => {
+    let itemListObjectArray;
     return (itemListObjectArray = items.map((element) => {
       return {
         prefix: `https://firebasestorage.googleapis.com/v0/b/xcape-hint-app.appspot.com/o/${state.merchantValue}%2F${state.themeValue}%2F${componentValue}%2F`,
@@ -102,18 +99,11 @@ const Home = () => {
     });
   };
 
-  const getPageList = async (
-    merchantCode: string,
-    themeCode: string
-  ): Promise<any> => {
+  const getPageList = async (merchantCode, themeCode) => {
     return await getData(`/tagView/${merchantCode}/${themeCode}`, false);
   };
 
-  const getTagList = async (
-    merchantCode: string,
-    themeCode: string,
-    pageCode: string
-  ): Promise<any> => {
+  const getTagList = async (merchantCode, themeCode, pageCode) => {
     return await getData(
       `/tagView/${merchantCode}/${themeCode}/${pageCode}/components`
     );
@@ -123,7 +113,7 @@ const Home = () => {
     return await getData("/viewName");
   };
 
-  const merchantChanged = async (merchantCode: string): Promise<any> => {
+  const merchantChanged = async (merchantCode) => {
     const theme = await getThemeList(merchantCode);
     const page = await getPageList(merchantCode, "thm001");
     const tagList = await getTagList(merchantCode, "thm001", "page01");
@@ -140,7 +130,7 @@ const Home = () => {
     dispatch({ type: MERCHANT_CHANGED, payload: data });
   };
 
-  const themeChanged = async (themeCode: string): Promise<any> => {
+  const themeChanged = async (themeCode) => {
     const page = await getPageList(state.merchantValue, themeCode);
     const tagList = await getTagList(state.merchantValue, themeCode, "page01");
     const data = {
@@ -156,7 +146,7 @@ const Home = () => {
     dispatch({ type: THEME_CHANGED, payload: data });
   };
 
-  const pageChanged = async (pageCode: string) => {
+  const pageChanged = async (pageCode) => {
     const page = pageCode;
     const tagList = await getTagList(
       state.merchantValue,
@@ -169,11 +159,13 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const initList = async (): Promise<void> => {
+    const initList = async () => {
       const merchant = await getMerchantList();
       const theme = await getThemeList("mrc001");
       const page = await getPageList("mrc001", "thm001");
       const tagList = await getTagList("mrc001", "thm001", "page01");
+      console.log("tagList", tagList);
+
       const data = {
         merchantList: merchant,
         themeList: theme,
@@ -216,7 +208,7 @@ const Home = () => {
     setPageList(originalPageList);
   };
 
-  const isInputEmpty = (): boolean => {
+  const isInputEmpty = () => {
     if (inputRef.current) {
       const value = inputRef.current.value.replace(/(\s*)/gi, "");
       if (value === "") {
@@ -237,7 +229,7 @@ const Home = () => {
         if (componentRef.current && inputRef.current && moveToPageRef.current) {
           const inputValue = inputRef.current.value.replace(/(\s*)/, "");
           const moveToPageUrl = `${state.merchantValue}/${state.themeValue}/`;
-          const pageObject: IPageObjectType = {
+          const pageObject = {
             component: componentRef.current.value,
             answer: inputValue,
             moveToPage: moveToPageUrl + moveToPageRef.current.value,
@@ -249,7 +241,7 @@ const Home = () => {
       }
     } else if (isCameraView) {
       if (componentRef.current) {
-        const pageObject: IPageObjectType = {
+        const pageObject = {
           component: componentRef.current.value,
         };
         const pageListArray = [...pageList];
@@ -257,7 +249,7 @@ const Home = () => {
         setPageList(pageListArray);
       }
     } else {
-      const pageListArray: IPageObjectType[] = [...pageList, ...selectedItem];
+      const pageListArray = [...pageList, ...selectedItem];
       setPageList(pageListArray);
       initializeItemList();
     }
@@ -278,7 +270,7 @@ const Home = () => {
     }
   };
 
-  const checkCompoent = (e: ChangeEvent<HTMLSelectElement>) => {
+  const checkCompoent = (e) => {
     const value = e.target.value;
     if (value === "PasswordTagView") {
       setIsPasswordView(true);
@@ -296,7 +288,7 @@ const Home = () => {
   const initializeItemList = () => {
     const itemList = document.getElementById("storageItemList");
     setSelectedItem([]);
-    itemList?.childNodes.forEach((element: any) => {
+    itemList?.childNodes.forEach((element) => {
       if (element.className === "selected-item") {
         element.className = "item";
       }
@@ -381,17 +373,15 @@ const Home = () => {
                     id="component"
                   >
                     {viewName &&
-                      Object.entries(viewName).map(
-                        (element: any, index: number): any => {
-                          return (
-                            <option
-                              label={element[1]}
-                              value={element[0]}
-                              key={index}
-                            ></option>
-                          );
-                        }
-                      )}
+                      Object.entries(viewName).map((element, index) => {
+                        return (
+                          <option
+                            label={element[1]}
+                            value={element[0]}
+                            key={index}
+                          ></option>
+                        );
+                      })}
                   </Form.Select>
                 </InputGroup>
               </div>
