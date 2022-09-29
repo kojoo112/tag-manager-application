@@ -2,8 +2,7 @@ import React from "react";
 import { Form, InputGroup } from "react-bootstrap";
 
 const FormSelect = (props) => {
-  const { items, label, value, action } = props;
-  console.log(items);
+  const { items, label, action, id } = props;
 
   return (
     <div className="w-100" style={{ margin: 5 }}>
@@ -14,22 +13,24 @@ const FormSelect = (props) => {
         <Form.Select
           className="w-50"
           style={styles.select}
-          value={value}
-          onChange={(e) => action(e.target.value)}
+          id={id}
+          onChange={(e) => {
+            action(e.target.value);
+          }}
         >
-          {Array.isArray(items)
+          {items && Array.isArray(items)
             ? items.map((value, index) => {
                 return (
-                  <option label={value} value={value} key={index}></option>
+                  <option value={value} key={index}>
+                    {value}
+                  </option>
                 );
               })
             : Object.entries(items).map((element, index) => {
                 return (
-                  <option
-                    label={element[1]}
-                    value={element[0]}
-                    key={index}
-                  ></option>
+                  <option value={element[0]} key={index}>
+                    {element[1]}
+                  </option>
                 );
               })}
         </Form.Select>

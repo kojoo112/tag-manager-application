@@ -1,6 +1,5 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { getFileExtensionName, getItemList } from "../util/util";
-import { IPageObjectType } from "../util/interface";
+import React from "react";
+import { getFileExtensionName } from "../util/util";
 import tape from "../assets/images/tape-play.gif";
 import { AUDIO_VIEW, IMAGE_VIEW, VIDEO_VIEW } from "../util/constants";
 
@@ -40,11 +39,7 @@ const StorageItemList = (props) => {
             }}
             id={item.prefix + item.name + item.suffix}
           />
-          <audio
-            style={{ width: "100%" }}
-            controls={true}
-            src={item.prefix + item.name + item.suffix}
-          />
+          <audio style={{ width: "100%" }} controls={true} src={item.prefix + item.name + item.suffix} />
         </div>
       );
     } else if (extensionName === VIDEO_VIEW) {

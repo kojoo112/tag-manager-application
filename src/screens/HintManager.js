@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup, Table } from "react-bootstrap";
 import { INIT_DATA, MERCHANT_CHANGED, THEME_CHANGED } from "../util/constants";
-import { IAction } from "../util/interface";
 import { getData, getMerchantList, getThemeList, setData } from "../util/util";
 
 const initialState = {
@@ -31,7 +30,6 @@ const HintManager = () => {
   const [code, setCode] = useState();
   const [message1, setMessage1] = useState("");
   const [message2, setMessage2] = useState("");
-  const [seq, setSeq] = useState();
 
   const message1Ref = useRef(null);
   const message2Ref = useRef(null);
@@ -58,7 +56,6 @@ const HintManager = () => {
       themeValue: themeCode,
       hintList: hintList,
     };
-    console.log(themeCode);
     dispatch({ type: THEME_CHANGED, payload: data });
   };
 

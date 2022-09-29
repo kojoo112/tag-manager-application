@@ -1,14 +1,7 @@
 import { get, ref, set } from "firebase/database";
 import * as Storage from "firebase/storage";
 import { firebaseDB, firebaseStorage } from "../firebase/firebase";
-import {
-  AUDIO,
-  AUDIO_VIEW,
-  IMAGE,
-  IMAGE_VIEW,
-  VIDEO,
-  VIDEO_VIEW,
-} from "./constants";
+import { AUDIO, AUDIO_VIEW, IMAGE, IMAGE_VIEW, VIDEO, VIDEO_VIEW } from "./constants";
 
 export const getData = async (reference, isReturnKeys = true) => {
   try {
@@ -39,11 +32,13 @@ export const setData = async (reference, data) => {
 export const imagesRef = Storage.ref(firebaseStorage, "images");
 
 export const getItemList = async (reference) => {
-  return await Storage.listAll(Storage.ref(firebaseStorage, reference)).then(
-    (res) => {
+  return await Storage.listAll(Storage.ref(firebaseStorage, reference))
+    .then((res) => {
       return res;
-    }
-  );
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 export const getFileExtensionName = (extension) => {
