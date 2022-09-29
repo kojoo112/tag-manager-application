@@ -1,7 +1,7 @@
 import React from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
 
-const Navigation = () => {
+const TopNavbar = () => {
   return (
     <>
       <Navbar bg="dark" variant="dark">
@@ -9,7 +9,7 @@ const Navigation = () => {
           <Navbar.Brand>XCAPE</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link href="/">X-KIT</Nav.Link>
-            <Nav.Link href="hint-manager">Hint</Nav.Link>
+            <Nav.Link href="/hint-manager">Hint</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
@@ -17,4 +17,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default TopNavbar;

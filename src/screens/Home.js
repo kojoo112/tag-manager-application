@@ -1,35 +1,10 @@
-import React, {
-  ChangeEvent,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
-import {
-  Button,
-  Card,
-  Form,
-  InputGroup,
-  OverlayTrigger,
-  Popover,
-} from "react-bootstrap";
+import React, { useEffect, useReducer, useRef, useState } from "react";
+import { Button, Card, Form, InputGroup, OverlayTrigger, Popover } from "react-bootstrap";
 import PageList from "../components/PageList";
-import SearchContainer from "../components/SearchContainer";
-import {
-  getData,
-  getItemList,
-  setData,
-  getMerchantList,
-  getThemeList,
-  addPage,
-} from "../util/util";
+import { getData, getItemList, setData, getMerchantList, getThemeList, addPage } from "../util/util";
 import StorageItemList from "../components/StorageItemList";
-import {
-  INIT_DATA,
-  MERCHANT_CHANGED,
-  THEME_CHANGED,
-  PAGE_CHANGED,
-} from "../util/constants";
+import { INIT_DATA, MERCHANT_CHANGED, THEME_CHANGED, PAGE_CHANGED, PAGE_RELOAD } from "../util/constants";
+import FormSelect from "../components/FormSelect";
 
 const initialState = {
   merchantList: [""],
@@ -50,6 +25,8 @@ const reducer = (state, action) => {
       return { ...action.payload };
     case PAGE_CHANGED:
       return { ...state, pageValue: action.payload };
+    case PAGE_RELOAD:
+      return { ...state, pageList: action.payload };
     default:
       return state;
   }
@@ -64,32 +41,53 @@ const Home = () => {
   const [isModified, setIsModified] = useState(false);
   const [selectedItem, setSelectedItem] = useState([]);
   const [componentValue, setComponentValue] = useState("");
+  const [moveToPageValue, setMoveToPageValue] = useState("");
 
-  const componentRef = useRef(null);
   const inputRef = useRef(null);
-  const moveToPageRef = useRef(null);
+  // const moveToPageRef = useRef(null);
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const initList = async () => {
+  //   const merchant = await getMerchantList();
+  //   const theme = await getThemeList("mrc001");
+  //   const page = await getPageList("mrc001", "thm001");
+  //   const tagList = await getTagList("mrc001", "thm001", "page01");
+  //
+  //   const data = {
+  //     merchantList: merchant,
+  //     themeList: theme,
+  //     pageList: page,
+  //     merchantValue: "mrc001",
+  //     themeValue: "thm001",
+  //     pageValue: "page01",
+  //   };
+  //   setOriginalPageList(tagList);
+  //   setPageList(tagList);
+  //   dispatch({ type: INIT_DATA, payload: data });
+  //   getViewList().then((res) => {
+  //     setComponentValue(Object.keys(res)[0]);
+  //     setViewName(res);
+  //   });
+  // };
+  // initList();
 
-  const [storageItems, setStorageItems] = useState();
+  const [state, dispatch] = useReducer(reducer, initialState, undefined);
+
+  const [storageItems, setStorageItems] = useState([]);
 
   const pageName = useRef();
 
   const formatItemList = (items) => {
-    let itemListObjectArray;
-    return (itemListObjectArray = items.map((element) => {
+    return items.map((element) => {
       return {
         prefix: `https://firebasestorage.googleapis.com/v0/b/xcape-hint-app.appspot.com/o/${state.merchantValue}%2F${state.themeValue}%2F${componentValue}%2F`,
         name: element.name,
         suffix: "?alt=media",
       };
-    }));
+    });
   };
 
-  const setStorageData = () => {
-    getItemList(
-      `${state.merchantValue}/${state.themeValue}/${componentValue}`
-    ).then((res) => {
+  const storageData = () => {
+    getItemList(`${state.merchantValue}/${state.themeValue}/${componentValue}`).then((res) => {
       if (res.items.length > 0) {
         const formattedItemList = formatItemList(res.items);
         setStorageItems(formattedItemList);
@@ -104,9 +102,7 @@ const Home = () => {
   };
 
   const getTagList = async (merchantCode, themeCode, pageCode) => {
-    return await getData(
-      `/tagView/${merchantCode}/${themeCode}/${pageCode}/components`
-    );
+    return await getData(`/tagView/${merchantCode}/${themeCode}/${pageCode}/components`);
   };
 
   const getViewList = async () => {
@@ -131,12 +127,12 @@ const Home = () => {
   };
 
   const themeChanged = async (themeCode) => {
-    const page = await getPageList(state.merchantValue, themeCode);
+    const pageList = await getPageList(state.merchantValue, themeCode);
     const tagList = await getTagList(state.merchantValue, themeCode, "page01");
     const data = {
       merchantList: state.merchantList,
       themeList: state.themeList,
-      pageList: page,
+      pageList: pageList,
       merchantValue: state.merchantValue,
       themeValue: themeCode,
       pageValue: "page01",
@@ -146,16 +142,16 @@ const Home = () => {
     dispatch({ type: THEME_CHANGED, payload: data });
   };
 
+  const pageReload = async () => {
+    const pageList = await getPageList(state.merchantValue, state.themeValue);
+    dispatch({ type: PAGE_RELOAD, payload: pageList });
+  };
+
   const pageChanged = async (pageCode) => {
-    const page = pageCode;
-    const tagList = await getTagList(
-      state.merchantValue,
-      state.themeValue,
-      pageCode
-    );
+    const tagList = await getTagList(state.merchantValue, state.themeValue, pageCode);
     setOriginalPageList(tagList);
     setPageList(tagList);
-    dispatch({ type: PAGE_CHANGED, payload: page });
+    dispatch({ type: PAGE_CHANGED, payload: pageCode });
   };
 
   useEffect(() => {
@@ -164,7 +160,6 @@ const Home = () => {
       const theme = await getThemeList("mrc001");
       const page = await getPageList("mrc001", "thm001");
       const tagList = await getTagList("mrc001", "thm001", "page01");
-      console.log("tagList", tagList);
 
       const data = {
         merchantList: merchant,
@@ -195,7 +190,7 @@ const Home = () => {
 
   useEffect(() => {
     initializeItemList();
-    setStorageData();
+    storageData();
   }, [state.merchantValue, state.themeValue, componentValue]);
 
   const initializeInput = () => {
@@ -211,13 +206,8 @@ const Home = () => {
   const isInputEmpty = () => {
     if (inputRef.current) {
       const value = inputRef.current.value.replace(/(\s*)/gi, "");
-      if (value === "") {
-        return true;
-      } else {
-        return false;
-      }
+      return value === "";
     }
-    return true;
   };
 
   const addPageList = () => {
@@ -226,13 +216,13 @@ const Home = () => {
         alert("필수항목을 입력해주세요.");
         return;
       } else {
-        if (componentRef.current && inputRef.current && moveToPageRef.current) {
+        if (inputRef.current) {
           const inputValue = inputRef.current.value.replace(/(\s*)/, "");
           const moveToPageUrl = `${state.merchantValue}/${state.themeValue}/`;
           const pageObject = {
-            component: componentRef.current.value,
+            component: componentValue,
             answer: inputValue,
-            moveToPage: moveToPageUrl + moveToPageRef.current.value,
+            moveToPage: moveToPageUrl + moveToPageValue,
           };
           const pageListArray = [...pageList];
           pageListArray.push(pageObject);
@@ -240,14 +230,12 @@ const Home = () => {
         }
       }
     } else if (isCameraView) {
-      if (componentRef.current) {
-        const pageObject = {
-          component: componentRef.current.value,
-        };
-        const pageListArray = [...pageList];
-        pageListArray.push(pageObject);
-        setPageList(pageListArray);
-      }
+      const pageObject = {
+        component: componentValue,
+      };
+      const pageListArray = [...pageList];
+      pageListArray.push(pageObject);
+      setPageList(pageListArray);
     } else {
       const pageListArray = [...pageList, ...selectedItem];
       setPageList(pageListArray);
@@ -265,13 +253,10 @@ const Home = () => {
         setOriginalPageList(pageList);
         alert("성공적으로 저장했습니다.");
       });
-    } else {
-      return;
     }
   };
 
-  const checkCompoent = (e) => {
-    const value = e.target.value;
+  const checkComponent = (value) => {
     if (value === "PasswordTagView") {
       setIsPasswordView(true);
       setIsCameraView(false);
@@ -305,10 +290,12 @@ const Home = () => {
             const ref = `/tagView/${state.merchantValue}/${state.themeValue}`;
 
             getData(ref).then((result) => {
+              console.log("reference result", result);
+              console.log("pageName", pageName);
               if (!(page in result)) {
                 addPage(ref, page).then(() => {
                   alert("페이지를 생성했습니다!");
-                  window.location.reload();
+                  return pageReload();
                 });
               } else {
                 alert("동일한 페이지가 존재합니다!");
@@ -345,149 +332,74 @@ const Home = () => {
             <Card.Title>X-KIT Manager</Card.Title>
           </Card.Header>
           <Card.Body>
-            <div style={{ height: "50%" }}>
-              <SearchContainer
-                state={state}
-                merchantChanged={merchantChanged}
-                themeChanged={themeChanged}
-                pageChanged={pageChanged}
-              />
-              <div className="w-100" style={styles.inputGroup}>
-                <InputGroup
-                  style={{
-                    alignItems: "center",
-                  }}
-                >
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
-                    View 종류
-                  </Form.Label>
-                  <Form.Select
-                    onChange={(e) => checkCompoent(e)}
-                    className="w-50"
-                    style={styles.select}
-                    ref={componentRef}
-                    id="component"
-                  >
-                    {viewName &&
-                      Object.entries(viewName).map((element, index) => {
-                        return (
-                          <option
-                            label={element[1]}
-                            value={element[0]}
-                            key={index}
-                          ></option>
-                        );
-                      })}
-                  </Form.Select>
-                </InputGroup>
-              </div>
+            <div className={"h-50"}>
+              <FormSelect items={state.merchantList} label="가맹점" action={merchantChanged} />
+              <FormSelect items={state.themeList} label="테마" action={themeChanged} />
+              <FormSelect items={state.pageList} label="PAGE" action={pageChanged} id={"page"} />
+              <FormSelect items={viewName} label="View 종류" action={checkComponent} />
               {isPasswordView ? (
-                <div>
+                <>
                   <div>
                     <InputGroup style={styles.inputGroup}>
-                      <Form.Label
-                        className="w-25"
-                        column={true}
-                        style={styles.label}
-                      >
+                      <Form.Label className="w-25" column={true} style={styles.label}>
                         Answer
                       </Form.Label>
-                      <Form.Control
-                        className="w-50"
-                        ref={inputRef}
-                        type="text"
-                        style={styles.select}
-                      ></Form.Control>
+                      <Form.Control className="w-50" ref={inputRef} type="text" style={styles.select}></Form.Control>
                     </InputGroup>
                   </div>
-                  <div>
-                    <InputGroup style={styles.inputGroup}>
-                      <Form.Label
-                        className="w-25"
-                        column={true}
-                        style={styles.label}
-                      >
-                        이동할 페이지
-                      </Form.Label>
-                      <Form.Select
-                        className="w-50"
-                        style={styles.select}
-                        ref={moveToPageRef}
-                        disabled={isPasswordView ? false : true}
-                      >
-                        {state.pageList.map((value, index) => {
-                          return (
-                            <option
-                              label={value}
-                              value={value}
-                              key={index}
-                            ></option>
-                          );
-                        })}
-                      </Form.Select>
-                    </InputGroup>
-                  </div>
-                </div>
+                  <FormSelect items={state.pageList} label={"이동 할 페이지"} action={setMoveToPageValue} />
+                </>
               ) : (
                 <></>
               )}
               <div>
-                <Button
-                  onClick={addPageList}
-                  variant="light"
-                  style={styles.button}
-                >
+                <Button variant="light" onClick={addPageList} style={styles.button} disabled={false}>
                   +
                 </Button>
-                <Button
-                  onClick={saveComponent}
-                  style={styles.button}
-                  disabled={isModified ? false : true}
-                >
+                <Button variant="primary" onClick={saveComponent} style={styles.button} disabled={!isModified}>
                   저장
                 </Button>
-                <Button
-                  variant="danger"
-                  style={styles.button}
-                  onClick={initializePageList}
-                  disabled={isModified ? false : true}
-                >
+                <Button variant="danger" style={styles.button} onClick={initializePageList} disabled={!isModified}>
                   초기화
                 </Button>
                 <OverlayTrigger
                   trigger="click"
                   overlay={FormToAddPage}
                   placement="right"
-                  defaultShow={false}
+                  defaultShow={undefined}
                   onHide={undefined}
-                  onToggle={() => {}}
-                  popperConfig={{}}
+                  onToggle={undefined}
+                  popperConfig={undefined}
+                  delay={undefined}
+                  flip={undefined}
+                  show={undefined}
+                  target={undefined}
                 >
                   <Button variant="primary">페이지 추가</Button>
                 </OverlayTrigger>
+                <Button
+                  variant={"danger"}
+                  onClick={() => {
+                    console.log(pageList);
+                  }}
+                >
+                  콘솔로깅
+                </Button>
+                <Button
+                  onClick={() => {
+                    console.log(document.getElementById("page").value);
+                  }}
+                >
+                  id console
+                </Button>
               </div>
             </div>
-            <div
-              style={{ height: "100%", display: "flex", overflowX: "scroll" }}
-            >
-              {componentRef.current && (
-                <StorageItemList
-                  storageItems={storageItems}
-                  setStorageItems={setStorageItems}
-                  initializeItemList={initializeItemList}
-                  component={componentValue}
-                  merchant={state.merchantValue}
-                  theme={state.themeValue}
-                  pageList={pageList}
-                  setPageList={setPageList}
-                  selectedItem={selectedItem}
-                  setSelectedItem={setSelectedItem}
-                />
-              )}
+            <div style={{ height: "100%", display: "flex", overflowX: "scroll" }}>
+              <StorageItemList
+                storageItems={storageItems}
+                selectedItem={selectedItem}
+                setSelectedItem={setSelectedItem}
+              />
             </div>
           </Card.Body>
         </Card>
@@ -498,7 +410,6 @@ const Home = () => {
           display: "flex",
           justifyContent: "center",
           width: "60%",
-          // height: "100%",
         }}
       >
         <PageList pageList={pageList} setPageList={setPageList} />

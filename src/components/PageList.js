@@ -8,19 +8,23 @@ import {
   NotDraggingStyle,
 } from "react-beautiful-dnd";
 import { Trash3 } from "react-bootstrap-icons";
-import { IPageObjectType } from "../util/interface";
 import { IMAGE_VIEW, PASSWORD_TAG_VIEW, VIDEO_VIEW } from "../util/constants";
 
 const showContent = (item) => {
   const value = item.component;
-  console.log(item);
   if (value === IMAGE_VIEW) {
     return <img src={item.url} alt="" width={"50%"} />;
   } else if (value === "AudioView") {
     return (
       <div>
         <img src={tape} alt="" width={"50%"} />
-        <audio style={{ width: "100%" }} controls={true} src={item.url} />
+        <audio
+          style={{
+            width: "100%",
+          }}
+          controls={true}
+          src={item.url}
+        />
       </div>
     );
   } else if (value === VIDEO_VIEW) {
@@ -158,12 +162,19 @@ const PageList = (props) => {
                         provided.draggableProps.style
                       )}
                     >
-                      <div style={{ display: "flex", justifyContent: "end" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "end",
+                        }}
+                      >
                         <Trash3
                           size={30}
                           id={`trash-${index}`}
                           color={isHover ? "red" : "white"}
-                          style={{ cursor: "pointer" }}
+                          style={{
+                            cursor: "pointer",
+                          }}
                           onClick={() => {
                             removeComponent(index);
                           }}
