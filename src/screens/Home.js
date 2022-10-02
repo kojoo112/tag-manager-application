@@ -44,31 +44,6 @@ const Home = () => {
   const [moveToPageValue, setMoveToPageValue] = useState("");
 
   const inputRef = useRef(null);
-  // const moveToPageRef = useRef(null);
-
-  // const initList = async () => {
-  //   const merchant = await getMerchantList();
-  //   const theme = await getThemeList("mrc001");
-  //   const page = await getPageList("mrc001", "thm001");
-  //   const tagList = await getTagList("mrc001", "thm001", "page01");
-  //
-  //   const data = {
-  //     merchantList: merchant,
-  //     themeList: theme,
-  //     pageList: page,
-  //     merchantValue: "mrc001",
-  //     themeValue: "thm001",
-  //     pageValue: "page01",
-  //   };
-  //   setOriginalPageList(tagList);
-  //   setPageList(tagList);
-  //   dispatch({ type: INIT_DATA, payload: data });
-  //   getViewList().then((res) => {
-  //     setComponentValue(Object.keys(res)[0]);
-  //     setViewName(res);
-  //   });
-  // };
-  // initList();
 
   const [state, dispatch] = useReducer(reducer, initialState, undefined);
 
@@ -212,6 +187,7 @@ const Home = () => {
 
   const addPageList = () => {
     if (isPasswordView) {
+      console.log('passwordView');
       if (isInputEmpty()) {
         alert("필수항목을 입력해주세요.");
         return;
@@ -224,12 +200,14 @@ const Home = () => {
             answer: inputValue,
             moveToPage: moveToPageUrl + moveToPageValue,
           };
+          console.log(pageObject);
           const pageListArray = [...pageList];
           pageListArray.push(pageObject);
           setPageList(pageListArray);
         }
       }
     } else if (isCameraView) {
+      console.log('cameraView');
       const pageObject = {
         component: componentValue,
       };
@@ -237,6 +215,8 @@ const Home = () => {
       pageListArray.push(pageObject);
       setPageList(pageListArray);
     } else {
+      console.log('view');
+      console.log(selectedItem);
       const pageListArray = [...pageList, ...selectedItem];
       setPageList(pageListArray);
       initializeItemList();
@@ -377,26 +357,12 @@ const Home = () => {
                 >
                   <Button variant="primary">페이지 추가</Button>
                 </OverlayTrigger>
-                <Button
-                  variant={"danger"}
-                  onClick={() => {
-                    console.log(pageList);
-                  }}
-                >
-                  콘솔로깅
-                </Button>
-                <Button
-                  onClick={() => {
-                    console.log(document.getElementById("page").value);
-                  }}
-                >
-                  id console
-                </Button>
               </div>
             </div>
             <div style={{ height: "100%", display: "flex", overflowX: "scroll" }}>
               <StorageItemList
                 storageItems={storageItems}
+                component={componentValue}
                 selectedItem={selectedItem}
                 setSelectedItem={setSelectedItem}
               />
