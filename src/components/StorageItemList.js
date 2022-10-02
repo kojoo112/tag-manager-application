@@ -67,6 +67,7 @@ const StorageItemList = (props) => {
       component: props.component,
       url: url,
     };
+    console.log(url);
 
     const itemListArray = [...selectedItem];
     itemListArray.push(pageObject);
