@@ -355,9 +355,6 @@ const Home = () => {
                 <></>
               )}
               <div>
-                <Button variant={"primary"} onClick={() => console.log(cameraHeightInput.current.value)}>
-                  ddd
-                </Button>
                 <Button variant="light" onClick={addPageList} style={styles.button} disabled={false}>
                   +
                 </Button>
