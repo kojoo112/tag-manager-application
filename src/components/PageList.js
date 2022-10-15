@@ -1,20 +1,18 @@
 import React, { useState, SetStateAction, Dispatch } from "react";
 import tape from "../assets/images/tape-play.gif";
-import {
-  DragDropContext,
-  Draggable,
-  DraggingStyle,
-  Droppable,
-  NotDraggingStyle,
-} from "react-beautiful-dnd";
+import { DragDropContext, Draggable, DraggingStyle, Droppable, NotDraggingStyle } from "react-beautiful-dnd";
 import { Trash3 } from "react-bootstrap-icons";
-import { IMAGE_VIEW, PASSWORD_TAG_VIEW, VIDEO_VIEW } from "../util/constants";
+import { AUDIO_VIEW, IMAGE_VIEW, PASSWORD_TAG_VIEW, VIDEO_VIEW, CAMERA_VIEW } from "../util/constants";
 
 const showContent = (item) => {
   const value = item.component;
   if (value === IMAGE_VIEW) {
-    return <img src={item.url} alt="" width={"50%"} />;
-  } else if (value === "AudioView") {
+    return (
+      <div>
+        <img src={item.url} alt="" width={"50%"} />
+      </div>
+    );
+  } else if (value === AUDIO_VIEW) {
     return (
       <div>
         <img src={tape} alt="" width={"50%"} />
@@ -37,6 +35,8 @@ const showContent = (item) => {
         <>이동할 페이지 : {item.moveToPage?.split("/")[2]}</>
       </div>
     );
+  } else if (value === CAMERA_VIEW) {
+    return <div>카메라 높이 : {item.height || 400}</div>;
   }
 };
 
@@ -82,9 +82,7 @@ const PageList = (props) => {
 
     setPlaceholderProps({});
 
-    setPageList((pageList) =>
-      reorder(pageList, result.source.index, result.destination.index)
-    );
+    setPageList((pageList) => reorder(pageList, result.source.index, result.destination.index));
   };
 
   const removeComponent = (item) => {
@@ -140,27 +138,16 @@ const PageList = (props) => {
     <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
       <Droppable droppableId="droppable">
         {(provided, snapshot) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            style={getListStyle(snapshot.isDraggingOver)}
-          >
+          <div {...provided.droppableProps} ref={provided.innerRef} style={getListStyle(snapshot.isDraggingOver)}>
             {pageList &&
               pageList.map((item, index) => (
-                <Draggable
-                  key={`item${index}`}
-                  draggableId={`item-${index}`}
-                  index={index}
-                >
+                <Draggable key={`item${index}`} draggableId={`item-${index}`} index={index}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      style={getItemStyle(
-                        snapshot.isDragging,
-                        provided.draggableProps.style
-                      )}
+                      style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                     >
                       <div
                         style={{
@@ -183,9 +170,7 @@ const PageList = (props) => {
                       <div>
                         <>View 종류 : {item.component}</>
                       </div>
-                      <div>
-                        <>{showContent(item)}</>
-                      </div>
+                      {showContent(item)}
                     </div>
                   )}
                 </Draggable>

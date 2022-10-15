@@ -44,6 +44,7 @@ const Home = () => {
   const [moveToPageValue, setMoveToPageValue] = useState("");
 
   const inputRef = useRef(null);
+  const cameraHeightInput = useRef(null);
 
   const [state, dispatch] = useReducer(reducer, initialState, undefined);
 
@@ -187,7 +188,7 @@ const Home = () => {
 
   const addPageList = () => {
     if (isPasswordView) {
-      console.log('passwordView');
+      console.log("passwordView");
       if (isInputEmpty()) {
         alert("필수항목을 입력해주세요.");
         return;
@@ -200,23 +201,24 @@ const Home = () => {
             answer: inputValue,
             moveToPage: moveToPageUrl + moveToPageValue,
           };
-          console.log(pageObject);
           const pageListArray = [...pageList];
           pageListArray.push(pageObject);
           setPageList(pageListArray);
         }
       }
     } else if (isCameraView) {
-      console.log('cameraView');
+      let cameraHeight = cameraHeightInput.current.value;
+      if (cameraHeightInput.current.value === "") {
+        cameraHeight = 400;
+      }
       const pageObject = {
         component: componentValue,
+        height: cameraHeight,
       };
       const pageListArray = [...pageList];
       pageListArray.push(pageObject);
       setPageList(pageListArray);
     } else {
-      console.log('view');
-      console.log(selectedItem);
       const pageListArray = [...pageList, ...selectedItem];
       setPageList(pageListArray);
       initializeItemList();
@@ -332,7 +334,30 @@ const Home = () => {
               ) : (
                 <></>
               )}
+              {isCameraView ? (
+                <>
+                  <div>
+                    <InputGroup style={{ ...styles.inputGroup }}>
+                      <Form.Label className="w-25" column={true} style={styles.label}>
+                        높이
+                      </Form.Label>
+                      <Form.Control
+                        className="w-50"
+                        ref={cameraHeightInput}
+                        type="number"
+                        style={styles.select}
+                        defaultValue={400}
+                      ></Form.Control>
+                    </InputGroup>
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
               <div>
+                <Button variant={"primary"} onClick={() => console.log(cameraHeightInput.current.value)}>
+                  ddd
+                </Button>
                 <Button variant="light" onClick={addPageList} style={styles.button} disabled={false}>
                   +
                 </Button>
