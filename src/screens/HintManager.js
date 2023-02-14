@@ -60,7 +60,14 @@ const HintManager = () => {
   };
 
   const getHintList = async (merchantCode, themeCode) => {
-    const hintList = await getData(`/hintCode/${merchantCode}/${themeCode}`);
+    let hintList = await getData(`/hintCode/${merchantCode}/${themeCode}`);
+    if (hintList) {
+      hintList = Object.entries(hintList)
+        .sort((a, b) => {
+          return a[1].seq - b[1].seq;
+        })
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+    }
     setHintList(hintList);
     return hintList;
   };
@@ -87,10 +94,7 @@ const HintManager = () => {
   };
 
   const modifyHintCode = async (e) => {
-    let newHintCode = prompt(
-      "변경할 힌트코드를 입력해주세요.",
-      "영문 3글자, 숫자 2글자 형식입니다."
-    );
+    let newHintCode = prompt("변경할 힌트코드를 입력해주세요.", "영문 3글자, 숫자 2글자 형식입니다.");
     if (newHintCode != null) {
       if (validateHintCode(newHintCode)) {
         newHintCode = newHintCode.toUpperCase();
@@ -103,10 +107,7 @@ const HintManager = () => {
         delete originalHintList[hintCode];
         const newHintList = Object.assign(newHint, originalHintList);
 
-        await setData(
-          `/hintCode/${state.merchantValue}/${state.themeValue}`,
-          newHintList
-        );
+        await setData(`/hintCode/${state.merchantValue}/${state.themeValue}`, newHintList);
 
         setHintList(newHintList);
       }
@@ -114,16 +115,19 @@ const HintManager = () => {
   };
 
   const modifyHintMessage = async (message, key) => {
-    let newMessage = prompt("변경할 메세지를 입력해주세요. 💻");
+    let originMessage = "";
+    if (message === "message1") {
+      originMessage = hintList[key].message1;
+    } else {
+      originMessage = hintList[key].message2;
+    }
+    let newMessage = prompt("변경할 메세지를 입력해주세요. 💻", originMessage);
     if (newMessage !== null) {
       if (hintList !== undefined) {
         hintList[key] = { ...hintList[key], [message]: newMessage };
-        await setData(
-          `/hintCode/${state.merchantValue}/${state.themeValue}/${key}`,
-          {
-            ...hintList[key],
-          }
-        );
+        await setData(`/hintCode/${state.merchantValue}/${state.themeValue}/${key}`, {
+          ...hintList[key],
+        });
         setHintList({ ...hintList });
       }
     }
@@ -144,9 +148,7 @@ const HintManager = () => {
     let result = "";
 
     for (let i = 0; i < 3; i++) {
-      result += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
 
     for (let i = 0; i < 2; i++) {
@@ -168,13 +170,7 @@ const HintManager = () => {
   };
 
   const addHint = async () => {
-    if (
-      code !== undefined &&
-      message1 !== undefined &&
-      message1 !== "" &&
-      message2 !== undefined &&
-      message2 !== ""
-    ) {
+    if (code !== undefined && message1 !== undefined && message1 !== "" && message2 !== undefined && message2 !== "") {
       if (hintList !== undefined && validateHintCode(code)) {
         const hintCode = code.toUpperCase();
 
@@ -196,15 +192,10 @@ const HintManager = () => {
 
         const addedHintList = Object.assign({ ...newHint, ...hintList });
 
-        const getHintListAfterSetData = await setData(
-          `/hintCode/${state.merchantValue}/${state.themeValue}`,
-          {
-            ...addedHintList,
-          }
-        ).then(() => {
-          return getData(
-            `/hintCode/${state.merchantValue}/${state.themeValue}`
-          );
+        const getHintListAfterSetData = await setData(`/hintCode/${state.merchantValue}/${state.themeValue}`, {
+          ...addedHintList,
+        }).then(() => {
+          return getData(`/hintCode/${state.merchantValue}/${state.themeValue}`);
         });
 
         setHintList(getHintListAfterSetData);
@@ -256,11 +247,7 @@ const HintManager = () => {
             <div style={{ width: "80%" }}>
               <div style={{ display: "flex" }}>
                 <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
+                  <Form.Label className="w-25" column={true} style={styles.label}>
                     가맹점
                   </Form.Label>
                   <Form.Select
@@ -271,26 +258,14 @@ const HintManager = () => {
                     }}
                     style={styles.select}
                   >
-                    {Object.entries(state.merchantList).map(
-                      (element, index) => {
-                        return (
-                          <option
-                            key={index}
-                            label={element[1]}
-                            value={element[0]}
-                          ></option>
-                        );
-                      }
-                    )}
+                    {Object.entries(state.merchantList).map((element, index) => {
+                      return <option key={index} label={element[1]} value={element[0]}></option>;
+                    })}
                   </Form.Select>
                 </InputGroup>
 
                 <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
+                  <Form.Label className="w-25" column={true} style={styles.label}>
                     테마
                   </Form.Label>
                   <Form.Select
@@ -300,22 +275,12 @@ const HintManager = () => {
                     style={styles.select}
                   >
                     {Object.entries(state.themeList).map((element, index) => {
-                      return (
-                        <option
-                          key={index}
-                          label={element[1]}
-                          value={element[0]}
-                        ></option>
-                      );
+                      return <option key={index} label={element[1]} value={element[0]}></option>;
                     })}
                   </Form.Select>
                 </InputGroup>
                 <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
+                  <Form.Label className="w-25" column={true} style={styles.label}>
                     코드
                   </Form.Label>
                   <Form.Control
@@ -331,11 +296,7 @@ const HintManager = () => {
               </div>
               <div style={{ display: "flex" }}>
                 <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
+                  <Form.Label className="w-25" column={true} style={styles.label}>
                     메세지1
                   </Form.Label>
                   <Form.Control
@@ -348,11 +309,7 @@ const HintManager = () => {
                   ></Form.Control>
                 </InputGroup>
                 <InputGroup style={styles.inputGroup}>
-                  <Form.Label
-                    className="w-25"
-                    column={true}
-                    style={styles.label}
-                  >
+                  <Form.Label className="w-25" column={true} style={styles.label}>
                     메세지2
                   </Form.Label>
                   <Form.Control
@@ -367,11 +324,7 @@ const HintManager = () => {
               </div>
             </div>
             <div style={{ width: "8%" }}>
-              <Button
-                variant="primary"
-                onClick={addHint}
-                style={{ width: "100%" }}
-              >
+              <Button variant="primary" onClick={addHint} style={{ width: "100%" }}>
                 저장
               </Button>
             </div>
