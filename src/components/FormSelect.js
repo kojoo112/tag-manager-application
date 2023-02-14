@@ -2,7 +2,7 @@ import React from "react";
 import { Form, InputGroup } from "react-bootstrap";
 
 const FormSelect = (props) => {
-  const { items, label, action, id } = props;
+  const { items, label, action, id, selectValue } = props;
 
   return (
     <div className="w-100" style={{ margin: 5 }}>
@@ -17,6 +17,7 @@ const FormSelect = (props) => {
           onChange={(e) => {
             action(e.target.value);
           }}
+          value={selectValue}
         >
           {items && Array.isArray(items)
             ? items.map((value, index) => {

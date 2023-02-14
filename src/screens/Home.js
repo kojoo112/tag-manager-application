@@ -18,11 +18,13 @@ const initialState = {
 const reducer = (state, action) => {
   switch (action.type) {
     case INIT_DATA:
-      return { ...action.payload };
+      return { ...state, ...action.payload };
     case MERCHANT_CHANGED:
-      return { ...action.payload };
+      console.log(MERCHANT_CHANGED, state);
+      console.log(MERCHANT_CHANGED, action.payload);
+      return { ...state, ...action.payload };
     case THEME_CHANGED:
-      return { ...action.payload };
+      return { ...state, ...action.payload };
     case PAGE_CHANGED:
       return { ...state, pageValue: action.payload };
     case PAGE_RELOAD:
@@ -315,9 +317,20 @@ const Home = () => {
           </Card.Header>
           <Card.Body>
             <div className={"h-50"}>
-              <FormSelect items={state.merchantList} label="가맹점" action={merchantChanged} />
-              <FormSelect items={state.themeList} label="테마" action={themeChanged} />
-              <FormSelect items={state.pageList} label="PAGE" action={pageChanged} id={"page"} />
+              <FormSelect
+                items={state.merchantList}
+                label="가맹점"
+                action={merchantChanged}
+                selectValue={state.merchantValue}
+              />
+              <FormSelect items={state.themeList} label="테마" action={themeChanged} selectValue={state.themeValue} />
+              <FormSelect
+                items={state.pageList}
+                label="PAGE"
+                action={pageChanged}
+                id={"page"}
+                selectValue={state.pageValue}
+              />
               <FormSelect items={viewName} label="View 종류" action={checkComponent} />
               {isPasswordView ? (
                 <>
