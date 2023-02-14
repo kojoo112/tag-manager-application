@@ -17,7 +17,7 @@ export const getData = async (reference, isReturnKeys = true) => {
       }
     });
   } catch (e) {
-    console.error("util.tsx >>> getData >>> ", e);
+    console.error("util.js >>> getData >>> ", e);
   }
 };
 
@@ -25,7 +25,7 @@ export const setData = async (reference, data) => {
   try {
     await set(ref(firebaseDB, reference), data);
   } catch (e) {
-    console.error("util.tsx >>> storeNewComponents >>> ", e);
+    console.error("util.js >>> storeNewComponents >>> ", e);
   }
 };
 
@@ -62,8 +62,51 @@ export const getThemeList = async (merchantCode) => {
 
 export const addPage = async (reference, pageName) => {
   try {
-    await set(ref(firebaseDB, reference + `/${pageName}`), { dummy: pageName });
+    await set(ref(firebaseDB, `${reference}/${pageName}`), { dummy: pageName });
   } catch (e) {
-    console.error("util.tsx >>> addPage >>> ", e);
+    console.error("util.js >>> addPage >>> ", e);
+  }
+};
+
+export const addTheme = async (merchantCode, themeName) => {
+  try {
+    let themeCode = "";
+    const themes = await getData(`/themes/${merchantCode}`).then((res) => {
+      const resArr = Object.keys(res);
+      const themeNumbering = Number(resArr[resArr.length - 1].substring(3)) + 1;
+      themeCode = "thm" + numberingFormatter(themeNumbering);
+      return res;
+    });
+
+    const hints = await getData(`/hintCode/${merchantCode}/${themeCode}`).then((res) => {
+      return res;
+    });
+
+    const tags = await getData(`/tagView/${merchantCode}/${themeCode}`).then((res) => {
+      return res;
+    });
+
+    await set(ref(firebaseDB, `/themes/${merchantCode}`), { ...themes, ...{ [themeCode]: themeName } });
+    await set(ref(firebaseDB, `/hintCode/${merchantCode}/${themeCode}`), { ...hints, ...{ dummy: themeName } });
+    await set(ref(firebaseDB, `/tagView/${merchantCode}/${themeCode}`), {
+      ...tags,
+      ...{
+        page01: {
+          dummy: "page01",
+        },
+      },
+    });
+  } catch (e) {
+    console.error("util.js >>> addTheme >>> ", e);
+  }
+};
+
+export const numberingFormatter = (number) => {
+  if (number < 10) {
+    return `00${number}`;
+  } else if (number < 100) {
+    return `0${number}`;
+  } else {
+    return number;
   }
 };

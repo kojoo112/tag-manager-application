@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup, OverlayTrigger, Popover } from "react-bootstrap";
 import PageList from "../components/PageList";
-import { getData, getItemList, setData, getMerchantList, getThemeList, addPage } from "../util/util";
+import { getData, getItemList, setData, getMerchantList, getThemeList, addPage, addTheme } from "../util/util";
 import StorageItemList from "../components/StorageItemList";
 import { INIT_DATA, MERCHANT_CHANGED, THEME_CHANGED, PAGE_CHANGED, PAGE_RELOAD } from "../util/constants";
 import FormSelect from "../components/FormSelect";
@@ -51,6 +51,8 @@ const Home = () => {
   const [state, dispatch] = useReducer(reducer, initialState, undefined);
 
   const [storageItems, setStorageItems] = useState([]);
+
+  const themeName = useRef();
 
   const pageName = useRef();
 
@@ -264,6 +266,39 @@ const Home = () => {
     });
   };
 
+  const FormToAddTheme = (
+    <Popover>
+      <Popover.Body>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const theme = themeName.current;
+            const ref = `/themes/${state.merchantValue}`;
+            getData(ref).then((result) => {
+              if (!(theme in result)) {
+                addTheme(state.merchantValue, theme).then(() => {
+                  alert("테마를 생성했습니다!");
+                  return pageReload();
+                });
+              } else {
+                alert("동일한 페이지가 존재합니다!");
+              }
+            });
+          }}
+        >
+          <Form.Label>테마 이름</Form.Label>
+          <Form.Control
+            placeholder="예) 기억의 틈"
+            onChange={(e) => {
+              themeName.current = e.target.value;
+            }}
+            ref={themeName}
+          ></Form.Control>
+        </Form>
+      </Popover.Body>
+    </Popover>
+  );
+
   const FormToAddPage = (
     <Popover>
       <Popover.Body>
@@ -377,21 +412,40 @@ const Home = () => {
                 <Button variant="danger" style={styles.button} onClick={initializePageList} disabled={!isModified}>
                   초기화
                 </Button>
-                <OverlayTrigger
-                  trigger="click"
-                  overlay={FormToAddPage}
-                  placement="right"
-                  defaultShow={undefined}
-                  onHide={undefined}
-                  onToggle={undefined}
-                  popperConfig={undefined}
-                  delay={undefined}
-                  flip={undefined}
-                  show={undefined}
-                  target={undefined}
-                >
-                  <Button variant="primary">페이지 추가</Button>
-                </OverlayTrigger>
+                <div>
+                  <OverlayTrigger
+                    trigger="click"
+                    overlay={FormToAddTheme}
+                    placement="bottom"
+                    // defaultShow={undefined}
+                    // onHide={undefined}
+                    // onToggle={undefined}
+                    // popperConfig={undefined}
+                    // delay={undefined}
+                    // flip={undefined}
+                    // show={undefined}
+                    // target={undefined}
+                  >
+                    <Button variant="primary" className="mx-3">
+                      테마 추가
+                    </Button>
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    trigger="click"
+                    overlay={FormToAddPage}
+                    placement="top"
+                    // defaultShow={undefined}
+                    // onHide={undefined}
+                    // onToggle={undefined}
+                    // popperConfig={undefined}
+                    // delay={undefined}
+                    // flip={undefined}
+                    // show={undefined}
+                    // target={undefined}
+                  >
+                    <Button variant="primary">페이지 추가</Button>
+                  </OverlayTrigger>
+                </div>
               </div>
             </div>
             <div style={{ height: "100%", display: "flex", overflowX: "scroll" }}>
